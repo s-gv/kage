@@ -63,7 +63,8 @@ int main()
         return 1;
     }
 
-    emscripten_get_canvas_size(&width, &height, NULL);
+    // emscripten_get_canvas_size(&width, &height, NULL);
+    width = 960; height = 540; // Force window size
     LOGI("Window size -- w: %d, h: %d\n", width, height);
 
     glfwWindowHint(GLFW_SAMPLES, 4);
