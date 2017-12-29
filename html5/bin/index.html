@@ -69,6 +69,10 @@
         </div>
         <script type="text/javascript">
             var Module = {
+                onRuntimeInitialized: function() {
+                    var e = document.getElementById('loading');
+                    e.style.display = "none";
+                },
                 canvas: document.getElementById('game')
             };
         </script>
