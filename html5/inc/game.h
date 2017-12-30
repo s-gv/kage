@@ -7,6 +7,8 @@
 
 #include "graphics.h"
 
+#define GAME_TICK_MS (1000.0f/30.0f)
+
 typedef enum {
     GAME_INPUT_EVENT_NULL,
     GAME_INPUT_EVENT_SWIPE_UP,

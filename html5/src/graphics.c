@@ -116,8 +116,8 @@ void GraphicsLoop(GraphicsState* graphics_state)
     glBindBuffer(GL_ARRAY_BUFFER, graphics_state->gl_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sample_verts), NULL, GL_STREAM_DRAW);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sample_verts), sample_verts, GL_STREAM_DRAW);
-    glEnableVertexAttribArray(graphics_state->gl_pos_attrib);
     glVertexAttribPointer(graphics_state->gl_pos_attrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
+    glEnableVertexAttribArray(graphics_state->gl_pos_attrib);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
     //glChk();

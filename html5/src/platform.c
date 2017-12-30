@@ -15,6 +15,8 @@ int width, height;
 GLFWwindow* window;
 
 GameState *game_state;
+double last_frame_time, acc;
+//double last_tick;
 
 void loop()
 {
@@ -50,9 +52,28 @@ void loop()
     }
     GameInput game_input = {event_type, x, y};
 
-    GameStateUpdate(game_state, game_input);
-    GameRender(game_state);
-    
+    double t = emscripten_get_now();
+    double dt = (t - last_frame_time);
+    last_frame_time = t;
+    acc += dt;
+    int n_ticks = 0;
+    while(acc > GAME_TICK_MS) {
+        if(n_ticks < 2) {
+            // If simulation is too far behind, skip until it catches up
+            /*
+            if(t < 2000) {
+                LOGI("tick interval: %.2f\n", t - last_tick);
+                last_tick = t;
+            }
+            */
+            GameStateUpdate(game_state, game_input);
+            n_ticks++;
+        }
+        acc -= GAME_TICK_MS;
+    }
+    if(n_ticks > 0) {
+        GameRender(game_state);
+    }
     glfwSwapBuffers(window);
 }
 
