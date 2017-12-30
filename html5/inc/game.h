@@ -5,6 +5,8 @@
 #ifndef KAGE_GAME_H
 #define KAGE_GAME_H
 
+#include "graphics.h"
+
 typedef enum {
     GAME_INPUT_EVENT_NULL,
     GAME_INPUT_EVENT_SWIPE_UP,
@@ -22,10 +24,10 @@ typedef struct {
 } GameInput;
 
 typedef struct {
-    int todo;
+    GraphicsState graphics_state;
 } GameState;
 
-void GameInit(GameState* game_state);
+int GameInit(GameState* game_state);
 void GameStateUpdate(GameState* game_state, GameInput game_input);
 void GameRender(GameState* game_state);
 void GameReset(GameState* game_state);

@@ -52,7 +52,7 @@ void loop()
 
     GameStateUpdate(game_state, game_input);
     GameRender(game_state);
-
+    
     glfwSwapBuffers(window);
 }
 
@@ -79,9 +79,12 @@ int main()
     glfwMakeContextCurrent(window);
 
     game_state = (GameState*) calloc(1, sizeof(GameState));
-    GameInit(game_state);
+    if(GameInit(game_state) != 0) {
+        LOGE("Game init failed.\n");
+        return -1;
+    }
 
-    LOGI("Starting main loop\n");
+    LOGI("Starting main loop.\n");
     emscripten_set_main_loop(loop, 0, 1);
 
     return 0;

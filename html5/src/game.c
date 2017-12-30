@@ -2,13 +2,17 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
-#include <GLES2/gl2.h>
-
 #include "game.h"
+#include "platform.h"
 
-void GameInit(GameState* game_state)
+int GameInit(GameState* game_state)
 {
-    
+    if(GraphicsInit(&game_state->graphics_state) != 0) {
+        LOGE("Error in graphics init.\n");
+        return -1;
+    }
+    LOGI("Game init done.\n");
+    return 0;
 }
 
 void GameStateUpdate(GameState* game_state, GameInput game_input)
@@ -18,8 +22,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
 void GameRender(GameState* game_state)
 {
-    glClearColor(0.5f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GraphicsLoop(&game_state->graphics_state);
 }
 
 void GameReset(GameState* game_state)
