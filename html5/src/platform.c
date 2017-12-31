@@ -5,11 +5,14 @@
 #include <stdlib.h>
 #include <emscripten/emscripten.h>
 
+#include "platform.h"
+#include "game.h"
+
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>
 
-#include "platform.h"
-#include "game.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 int width, height;
 GLFWwindow* window;
@@ -109,4 +112,29 @@ int main()
     emscripten_set_main_loop(loop, 0, 1);
 
     return 0;
+}
+
+unsigned char* PlatformImgLoad(char* fileName, int* width, int* height)
+{
+    int n;
+    char filePath[1000];
+    sprintf(filePath, "asset/%s", fileName);
+    return stbi_load(filePath, width, height, &n, 4);
+}
+
+void PlatformImgFree(unsigned char* data)
+{
+    stbi_image_free(data);
+}
+
+FILE* platform_fopen(const char* fileName, const char* mode)
+{
+    char filePath[250];
+    sprintf(filePath, "asset/%s", fileName);
+    return fopen(filePath, mode);
+}
+
+void platform_fclose(FILE* fp)
+{
+    fclose(fp);
 }
