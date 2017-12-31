@@ -86,9 +86,10 @@ int GraphicsInit(GraphicsState* graphics_state)
         "precision highp float;\n"
         "attribute vec2 a_pos;\n"
         "attribute vec2 a_tex;\n"
+        "uniform mat4 u_mvp;\n"
         "varying vec2 v_tex;\n"
         "void main() {\n"
-        "    gl_Position = vec4(a_pos.x, a_pos.y, 0.0, 1.0);\n"
+        "    gl_Position = u_mvp * vec4(a_pos.xy, 0.0, 1.0);\n"
         "    v_tex = a_tex;\n"
         "}\n";
     const GLchar* fragment_src =
@@ -102,6 +103,7 @@ int GraphicsInit(GraphicsState* graphics_state)
     graphics_state->gl_pos_attrib = glGetAttribLocation(graphics_state->gl_simple_shader, "a_pos");
     graphics_state->gl_tex_attrib = glGetAttribLocation(graphics_state->gl_simple_shader, "a_tex");
     graphics_state->gl_sampler_uniform = glGetUniformLocation(graphics_state->gl_simple_shader, "u_sampler");
+    graphics_state->gl_mvp_uniform = glGetUniformLocation(graphics_state->gl_simple_shader, "u_mvp");
 
     glGenBuffers(1, &graphics_state->gl_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, graphics_state->gl_vbo);
@@ -138,6 +140,14 @@ void GraphicsLoop(GraphicsState* graphics_state)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    float mvp_matrix[16] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+    mvp_matrix[0] = 1.0f/graphics_state->aspect_ratio;
     
     // Render a quad
     glUseProgram(graphics_state->gl_simple_shader);
@@ -154,6 +164,8 @@ void GraphicsLoop(GraphicsState* graphics_state)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, graphics_state->gl_tex);
     glUniform1i(graphics_state->gl_sampler_uniform, 0);
+
+    glUniformMatrix4fv(graphics_state->gl_mvp_uniform, 1, GL_FALSE, mvp_matrix);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
     

@@ -11,6 +11,7 @@ int GameInit(GameState* game_state)
         LOGE("Error in graphics init.\n");
         return -1;
     }
+    game_state->graphics_state.aspect_ratio = 16.0f/9.0f;
     LOGI("Game init done.\n");
     return 0;
 }

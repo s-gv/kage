@@ -107,6 +107,7 @@ int main()
         LOGE("Game init failed.\n");
         return -1;
     }
+    game_state->graphics_state.aspect_ratio = (width*1.0f)/height;
 
     LOGI("Starting main loop.\n");
     emscripten_set_main_loop(loop, 0, 1);

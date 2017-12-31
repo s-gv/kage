@@ -8,9 +8,12 @@
 #include <GLES2/gl2.h>
 
 typedef struct {
+    float aspect_ratio;
+
     GLuint gl_simple_shader;
     GLuint gl_pos_attrib;
     GLuint gl_tex_attrib;
+    GLuint gl_mvp_uniform;
     GLuint gl_sampler_uniform;
     GLuint gl_vbo;
     GLuint gl_tex;
