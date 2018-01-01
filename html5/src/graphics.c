@@ -232,7 +232,6 @@ int GraphicsInit(GraphicsState* graphics_state)
         text_verts[24*i+16] = text_verts[24*i+16]/scale_factor; text_verts[24*i+17] = -text_verts[24*i+17]/scale_factor;
         text_verts[24*i+20] = text_verts[24*i+20]/scale_factor; text_verts[24*i+21] = -text_verts[24*i+21]/scale_factor;
     }
-    LOGI("text_verts[0-3]: (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)\n", text_verts[0], text_verts[1], text_verts[4], text_verts[5], text_verts[8], text_verts[9]);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     glEnable(GL_DEPTH_TEST);
