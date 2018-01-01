@@ -6,6 +6,7 @@
 #define KAGE_GAME_H
 
 #include "graphics.h"
+#include "audio.h"
 
 #define GAME_TICK_MS (1000.0f/30.0f)
 
@@ -27,6 +28,7 @@ typedef struct {
 
 typedef struct {
     GraphicsState graphics_state;
+    AudioState audio_state;
 } GameState;
 
 int GameInit(GameState* game_state);
