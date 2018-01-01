@@ -111,7 +111,7 @@ float sample_verts[] = {
     -0.5f,  0.5f, (512.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
      0.5f,  0.5f, (639.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
 };
-char text[100] = "782";
+char text[100] = "0123456789";
 float text_verts[512];
 
 int GraphicsInit(GraphicsState* graphics_state)
@@ -196,41 +196,41 @@ int GraphicsInit(GraphicsState* graphics_state)
         return 1;
     }
 
-    float x = 0.75, y = 0.75;
+    float x = 0.5, y = 0.75;
 
     float scale_factor = 250.0f;
-    x *= scale_factor; y *= scale_factor;
+    x *= scale_factor; y *= -scale_factor;
     stbtt_aligned_quad q;
     for(int i = 0; i < strlen(text); i++) {
         stbtt_GetBakedQuad(graphics_state->font.cdata, 1024, 1024, text[i]-32, &x, &y, &q, 1);
 
         // Triangle 1
         text_verts[24*i+0] = q.x0; text_verts[24*i+1] = q.y0;
-        text_verts[24*i+2] = q.s0; text_verts[24*i+3] = q.t1;
+        text_verts[24*i+2] = q.s0; text_verts[24*i+3] = q.t0;
 
         text_verts[24*i+4] = q.x1; text_verts[24*i+5] = q.y0; 
-        text_verts[24*i+6] = q.s1; text_verts[24*i+7] = q.t1;
+        text_verts[24*i+6] = q.s1; text_verts[24*i+7] = q.t0;
 
         text_verts[24*i+8] = q.x1; text_verts[24*i+9] = q.y1; 
-        text_verts[24*i+10] = q.s1; text_verts[24*i+11] = q.t0;
+        text_verts[24*i+10] = q.s1; text_verts[24*i+11] = q.t1;
 
         // Triangle 2
         text_verts[24*i+12] = q.x0; text_verts[24*i+13] = q.y1; 
-        text_verts[24*i+14] = q.s0; text_verts[24*i+15] = q.t0;
+        text_verts[24*i+14] = q.s0; text_verts[24*i+15] = q.t1;
 
         text_verts[24*i+16] = q.x0; text_verts[24*i+17] = q.y0; 
-        text_verts[24*i+18] = q.s0; text_verts[24*i+19] = q.t1;
+        text_verts[24*i+18] = q.s0; text_verts[24*i+19] = q.t0;
 
         text_verts[24*i+20] = q.x1; text_verts[24*i+21] = q.y1; 
-        text_verts[24*i+22] = q.s1; text_verts[24*i+23] = q.t0;
+        text_verts[24*i+22] = q.s1; text_verts[24*i+23] = q.t1;
 
-        text_verts[24*i+0] = text_verts[24*i+0]/scale_factor; text_verts[24*i+1] = text_verts[24*i+1]/scale_factor;
-        text_verts[24*i+4] = text_verts[24*i+4]/scale_factor; text_verts[24*i+5] = text_verts[24*i+5]/scale_factor;
-        text_verts[24*i+8] = text_verts[24*i+8]/scale_factor; text_verts[24*i+9] = text_verts[24*i+9]/scale_factor;
+        text_verts[24*i+0] = text_verts[24*i+0]/scale_factor; text_verts[24*i+1] = -text_verts[24*i+1]/scale_factor;
+        text_verts[24*i+4] = text_verts[24*i+4]/scale_factor; text_verts[24*i+5] = -text_verts[24*i+5]/scale_factor;
+        text_verts[24*i+8] = text_verts[24*i+8]/scale_factor; text_verts[24*i+9] = -text_verts[24*i+9]/scale_factor;
 
-        text_verts[24*i+12] = text_verts[24*i+12]/scale_factor; text_verts[24*i+13] = text_verts[24*i+13]/scale_factor;
-        text_verts[24*i+16] = text_verts[24*i+16]/scale_factor; text_verts[24*i+17] = text_verts[24*i+17]/scale_factor;
-        text_verts[24*i+20] = text_verts[24*i+20]/scale_factor; text_verts[24*i+21] = text_verts[24*i+21]/scale_factor;
+        text_verts[24*i+12] = text_verts[24*i+12]/scale_factor; text_verts[24*i+13] = -text_verts[24*i+13]/scale_factor;
+        text_verts[24*i+16] = text_verts[24*i+16]/scale_factor; text_verts[24*i+17] = -text_verts[24*i+17]/scale_factor;
+        text_verts[24*i+20] = text_verts[24*i+20]/scale_factor; text_verts[24*i+21] = -text_verts[24*i+21]/scale_factor;
     }
     LOGI("text_verts[0-3]: (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)\n", text_verts[0], text_verts[1], text_verts[4], text_verts[5], text_verts[8], text_verts[9]);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
