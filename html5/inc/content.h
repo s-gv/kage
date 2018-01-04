@@ -18,9 +18,4 @@ typedef struct {
     int duration; // in multiples of 33.33ms
 } KeyFrame;
 
-typedef struct {
-    KeyFrame keyframes[MAX_KEYFRAMES];
-    int n_keyframes;
-} AnimSeq;
-
 #endif
