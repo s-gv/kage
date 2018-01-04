@@ -244,6 +244,30 @@ int GraphicsInit(GraphicsState* graphics_state)
     return 0;
 }
 
+int InitEntityPlane(EntityPlane* plane, const char* atlas_file_name)
+{
+    glGenBuffers(1, &plane->gl_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, plane->gl_vbo);
+    glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    int img_w, img_h;
+    unsigned char* pixel_data = PlatformImgLoad("atlas.png", &img_w, &img_h);
+    if (pixel_data == NULL) {
+        LOGE("Failed to load texture image\n");
+        return 1;
+    }
+
+    glGenTextures(1, &plane->gl_tex);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, plane->gl_tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_w, img_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel_data);
+
+    PlatformImgFree(pixel_data);
+}
+
 void GraphicsLoop(GraphicsState* graphics_state)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

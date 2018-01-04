@@ -9,6 +9,9 @@
 
 #include "stb_truetype.h"
 
+#define MAX_ENTITIES_PER_PLANE 512
+#define MAX_Z_INDEXES 100
+
 typedef struct {
     GLuint gl_tex;
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
@@ -25,7 +28,21 @@ typedef struct {
 } FontShader;
 
 typedef struct {
+    float x0, y0, s0, t0; // left-top
+    float x1, y1, s1, t1; // right-bottom
+} Entity;
+
+typedef struct {
+    Entity entities[MAX_ENTITIES_PER_PLANE];
+    int n_entities;
+    int z_index;
+    int gl_vbo;
+    int gl_tex;
+} EntityPlane;
+
+typedef struct {
     float aspect_ratio;
+    EntityPlane planes[4];
 
     GLuint gl_simple_shader;
     GLuint gl_pos_attrib;
@@ -40,6 +57,7 @@ typedef struct {
 } GraphicsState;
 
 int GraphicsInit(GraphicsState* graphics_state);
+int InitEntityPlane(EntityPlane* plane, const char* atlas_file_name);
 void GraphicsLoop(GraphicsState* graphics_state);
 
 #endif
