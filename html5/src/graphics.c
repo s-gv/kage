@@ -102,8 +102,15 @@ int GraphicsInit(GameState* game_state)
     game_state->quad_shader.gl_sampler_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_sampler");
     game_state->quad_shader.gl_mvp_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_mvp");
     game_state->quad_shader.gl_z_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_z");
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    for(int i = 0; i < MAX_ENTITY_PLANES; i++) {
+        glGenBuffers(1, &game_state->gl_vbos[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, game_state->gl_vbos[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -115,23 +122,18 @@ int GraphicsInit(GameState* game_state)
     return 0;
 }
 
-int InitEntityPlane(EntityPlane* plane, const char* atlas_file_name)
+int LoadTexture(GLuint *gl_tex, const char* file_name)
 {
-    glGenBuffers(1, &plane->gl_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, plane->gl_vbo);
-    glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     int img_w, img_h;
-    unsigned char* pixel_data = PlatformImgLoad(atlas_file_name, &img_w, &img_h);
+    unsigned char* pixel_data = PlatformImgLoad(file_name, &img_w, &img_h);
     if (pixel_data == NULL) {
-        LOGE("Failed to load texture image\n");
+        LOGE("Failed to load texture image: %s\n", file_name);
         return 1;
     }
 
-    glGenTextures(1, &plane->gl_tex);
+    glGenTextures(1, gl_tex);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, plane->gl_tex);
+    glBindTexture(GL_TEXTURE_2D, *gl_tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_w, img_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel_data);
@@ -155,7 +157,7 @@ void GraphicsLoop(GameState* game_state)
     mvp_matrix[0] = 1.0f / game_state->aspect_ratio;
 
     for(int i = 0; i < game_state->n_planes; i++) {
-        EntityPlane *plane = game_state->planes[i];
+        EntityPlane *plane = &game_state->planes[i];
         if(plane->n_entities <= 0) {
             continue;
         }
@@ -183,7 +185,7 @@ void GraphicsLoop(GameState* game_state)
 
         glUseProgram(game_state->quad_shader.gl_program); // Render quads
 
-        glBindBuffer(GL_ARRAY_BUFFER, plane->gl_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, game_state->gl_vbos[i]);
         glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
         glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), game_state->sprite_verts, GL_STREAM_DRAW);
 

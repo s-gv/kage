@@ -44,7 +44,6 @@ typedef struct {
 typedef struct {
     Entity entities[MAX_ENTITIES_PER_PLANE];
     int n_entities;
-    GLuint gl_vbo;
     GLuint gl_tex;
 } EntityPlane;
 
@@ -61,11 +60,12 @@ typedef struct {
     float aspect_ratio;
     QuadShader quad_shader;
 
-    EntityPlane splash_plane;
-    EntityPlane sample_plane;
-    EntityPlane bg_plane;
+    GLuint gl_splash_tex;
+    GLuint gl_sample_tex;
+    GLuint gl_bg_tex;
 
-    EntityPlane *planes[MAX_ENTITY_PLANES];
+    EntityPlane planes[MAX_ENTITY_PLANES];
+    GLuint gl_vbos[MAX_ENTITY_PLANES];
     int n_planes;
 
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];

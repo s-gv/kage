@@ -8,7 +8,7 @@
 #include "game.h"
 
 int GraphicsInit(GameState* game_state);
-int InitEntityPlane(EntityPlane* plane, const char* atlas_file_name);
+int LoadTexture(GLuint *gl_tex, const char* file_name);
 void GraphicsLoop(GameState* game_state);
 
 #endif
