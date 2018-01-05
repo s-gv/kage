@@ -5,10 +5,15 @@
 #ifndef KAGE_GAME_H
 #define KAGE_GAME_H
 
-#include "graphics.h"
+#include <GLES2/gl2.h>
+
+#include "content.h"
 #include "audio.h"
 
-#define GAME_TICK_MS (1000.0f/30.0f)
+#define GAME_TICK_MS (1000.0f/60.0f)
+#define MAX_ENTITY_PLANES 4
+#define MAX_ENTITIES_PER_PLANE 512
+#define MAX_Z_INDEXES 100
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
@@ -27,7 +32,37 @@ typedef struct {
 } GameInput;
 
 typedef struct {
-    GraphicsState graphics_state;
+    Sprite *sprite;
+    float x, y;
+} Entity;
+
+typedef struct {
+    Entity entities[MAX_ENTITIES_PER_PLANE];
+    int n_entities;
+    int z_index;
+    GLuint gl_vbo;
+    GLuint gl_tex;
+} EntityPlane;
+
+typedef struct {
+    GLuint gl_program;
+    GLuint gl_pos_attrib;
+    GLuint gl_tex_attrib;
+    GLuint gl_mvp_uniform;
+    GLuint gl_sampler_uniform;
+} QuadShader;
+
+typedef struct {
+    float aspect_ratio;
+    QuadShader quad_shader;
+
+    int n_frames;
+
+    EntityPlane planes[MAX_ENTITY_PLANES];
+    int n_planes;
+
+    float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
+
     AudioState audio_state;
 } GameState;
 

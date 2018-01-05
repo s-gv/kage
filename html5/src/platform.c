@@ -22,7 +22,7 @@ GLFWwindow* window;
 
 GameState *game_state;
 double last_frame_time, acc;
-//double last_tick;
+double last_tick;
 
 void loop()
 {
@@ -110,7 +110,7 @@ int main()
         LOGE("Game init failed.\n");
         return -1;
     }
-    game_state->graphics_state.aspect_ratio = (width*1.0f)/height;
+    game_state->aspect_ratio = (width*1.0f)/height;
 
     LOGI("Starting main loop.\n");
     emscripten_set_main_loop(loop, 0, 1);

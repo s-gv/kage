@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "graphics.h"
+#include "game.h"
 #include "platform.h"
 
 #define glChk() gl_check_for_errors(__FILE__, __LINE__);
@@ -74,7 +75,7 @@ static GLuint makeShaderProgram(const GLchar* vertex_src, const GLchar* fragment
     return linkShader(gl_vert_shader, gl_frag_shader);
 }
 
-int GraphicsInit(GraphicsState* graphics_state)
+int GraphicsInit(GameState* game_state)
 {
     // Quad shader
     const GLchar* vertex_src =
@@ -94,11 +95,11 @@ int GraphicsInit(GraphicsState* graphics_state)
         "void main() {\n"
         "    gl_FragColor = texture2D(u_sampler, v_tex);\n"
         "}\n";
-    graphics_state->quad_shader.gl_program = makeShaderProgram(vertex_src, fragment_src);
-    graphics_state->quad_shader.gl_pos_attrib = glGetAttribLocation(graphics_state->quad_shader.gl_program, "a_pos");
-    graphics_state->quad_shader.gl_tex_attrib = glGetAttribLocation(graphics_state->quad_shader.gl_program, "a_tex");
-    graphics_state->quad_shader.gl_sampler_uniform = glGetUniformLocation(graphics_state->quad_shader.gl_program, "u_sampler");
-    graphics_state->quad_shader.gl_mvp_uniform = glGetUniformLocation(graphics_state->quad_shader.gl_program, "u_mvp");
+    game_state->quad_shader.gl_program = makeShaderProgram(vertex_src, fragment_src);
+    game_state->quad_shader.gl_pos_attrib = glGetAttribLocation(game_state->quad_shader.gl_program, "a_pos");
+    game_state->quad_shader.gl_tex_attrib = glGetAttribLocation(game_state->quad_shader.gl_program, "a_tex");
+    game_state->quad_shader.gl_sampler_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_sampler");
+    game_state->quad_shader.gl_mvp_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_mvp");
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +139,7 @@ int InitEntityPlane(EntityPlane* plane, const char* atlas_file_name)
     return 0;
 }
 
-void GraphicsLoop(GraphicsState* graphics_state)
+void GraphicsLoop(GameState* game_state)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -149,11 +150,11 @@ void GraphicsLoop(GraphicsState* graphics_state)
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
-    mvp_matrix[0] = 1.0f / graphics_state->aspect_ratio;
+    mvp_matrix[0] = 1.0f / game_state->aspect_ratio;
 
-    for(int i = 0; i < graphics_state->n_planes; i++) {
-        EntityPlane *plane = &graphics_state->planes[i];
-        for(int j = 0; j < graphics_state->planes[i].n_entities; j++) {
+    for(int i = 0; i < game_state->n_planes; i++) {
+        EntityPlane *plane = &game_state->planes[i];
+        for(int j = 0; j < game_state->planes[i].n_entities; j++) {
             Entity *entity = &plane->entities[j];
             Sprite *sprite = entity->sprite;
 
@@ -162,7 +163,7 @@ void GraphicsLoop(GraphicsState* graphics_state)
             float x0 = entity->x - sprite->w/2; float y0 = entity->y + sprite->h/2;
             float x1 = entity->x + sprite->w/2; float y1 = entity->y - sprite->h/2;
 
-            float *qverts = &graphics_state->sprite_verts[24*j];
+            float *qverts = &game_state->sprite_verts[24*j];
 
             // Triangle 0 of the quad
             qverts[0] = x0; qverts[1] = y0; qverts[2] = s0; qverts[3] = t0;
@@ -175,24 +176,24 @@ void GraphicsLoop(GraphicsState* graphics_state)
             qverts[20] = x1; qverts[21] = y1; qverts[22] = s1; qverts[23] = t1;
         }
 
-        glUseProgram(graphics_state->quad_shader.gl_program); // Render quads
+        glUseProgram(game_state->quad_shader.gl_program); // Render quads
 
         glBindBuffer(GL_ARRAY_BUFFER, plane->gl_vbo);
         glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
-        glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), graphics_state->sprite_verts, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), game_state->sprite_verts, GL_STREAM_DRAW);
 
-        glVertexAttribPointer(graphics_state->quad_shader.gl_pos_attrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
-        glEnableVertexAttribArray(graphics_state->quad_shader.gl_pos_attrib);
-        glVertexAttribPointer(graphics_state->quad_shader.gl_tex_attrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
-        glEnableVertexAttribArray(graphics_state->quad_shader.gl_tex_attrib);
+        glVertexAttribPointer(game_state->quad_shader.gl_pos_attrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
+        glEnableVertexAttribArray(game_state->quad_shader.gl_pos_attrib);
+        glVertexAttribPointer(game_state->quad_shader.gl_tex_attrib, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
+        glEnableVertexAttribArray(game_state->quad_shader.gl_tex_attrib);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, plane->gl_tex);
-        glUniform1i(graphics_state->quad_shader.gl_sampler_uniform, 0);
+        glUniform1i(game_state->quad_shader.gl_sampler_uniform, 0);
 
-        glUniformMatrix4fv(graphics_state->quad_shader.gl_mvp_uniform, 1, GL_FALSE, mvp_matrix);
+        glUniformMatrix4fv(game_state->quad_shader.gl_mvp_uniform, 1, GL_FALSE, mvp_matrix);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6 * graphics_state->planes[i].n_entities);
+        glDrawArrays(GL_TRIANGLES, 0, 6 * game_state->planes[i].n_entities);
     }
     
     //glChk();
