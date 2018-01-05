@@ -25,17 +25,20 @@ int GameInit(GameState* game_state)
         LOGE("Entity plane init error\n");
         return -1;
     }
-    game_state->n_planes = 1;
+    if(InitEntityPlane(&game_state->planes[1], "splash.png") != 0) {
+        LOGE("Entity plane init error\n");
+        return -1;
+    }
+    game_state->n_planes = 2;
     LOGI("Game init done.\n");
     return 0;
 }
 
 void GameStateUpdate(GameState* game_state, GameInput game_input)
 {
-    EntityPlane *plane = &game_state->planes[0];
+    EntityPlane *plane = &game_state->planes[1];
 
-    //float x = (game_state->n_frames % 50) / 50.0f, y = 0;
-    Entity entity = {&g_sample_sprite, 0, 0};
+    Entity entity = {&g_start_splash_sprite, 0, 0};
     plane->entities[0] = entity;
     plane->n_entities = 1;
 

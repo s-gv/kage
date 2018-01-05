@@ -19,5 +19,6 @@ typedef struct {
 } KeyFrame;
 
 extern Sprite g_sample_sprite;
+extern Sprite g_start_splash_sprite;
 
 #endif
