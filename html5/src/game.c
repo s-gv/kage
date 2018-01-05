@@ -6,6 +6,7 @@
 #include "platform.h"
 #include "content.h"
 #include "graphics.h"
+#include "audio.h"
 
 int GameInit(GameState* game_state)
 {
@@ -13,7 +14,7 @@ int GameInit(GameState* game_state)
         LOGE("Error in graphics init.\n");
         return -1;
     }
-    if(AudioInit(&game_state->audio_state) != 0) {
+    if(AudioInit(game_state) != 0) {
         LOGE("Audio init error.\n");
         return -1;
     }

@@ -5,10 +5,7 @@
 #ifndef KAGE_AUDIO_H
 #define KAGE_AUDIO_H
 
-typedef struct {
-    int al_background_buffer;
-    int al_background_source;
-} AudioState;
+#include "game.h"
 
 typedef enum {
     AL_PLAY_ONCE,
@@ -16,7 +13,7 @@ typedef enum {
 } LIB_AUDIO_MODE;
 
 // Public init
-int AudioInit(AudioState* audio_state);
+int AudioInit(GameState* game_state);
 
 // Private init. returns 0 on success
 int alInit();

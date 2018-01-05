@@ -33,14 +33,14 @@ int wavBufferData(char* file_name) {
     return buffer_idx;
 }
 
-int AudioInit(AudioState* audio_state)
+int AudioInit(GameState* game_state)
 {
     if(alInit() != 0) {
         LOGE("Audio Init failed\n");
         return 1;
     }
-    audio_state->al_background_buffer = wavBufferData("sky_high.wav");
-    //audio_state->al_background_source = alPlay(audio_state->al_background_buffer, AL_PLAY_INFINITE);
+    game_state->al_background_buffer = wavBufferData("sky_high.wav");
+    //game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
     LOGI("Audio init done.\n");
     return 0;
 }

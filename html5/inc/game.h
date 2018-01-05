@@ -8,7 +8,6 @@
 #include <GLES2/gl2.h>
 
 #include "content.h"
-#include "audio.h"
 
 #define GAME_TICK_MS (1000.0f/60.0f)
 #define MAX_ENTITY_PLANES 4
@@ -63,7 +62,8 @@ typedef struct {
 
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
 
-    AudioState audio_state;
+    int al_background_buffer;
+    int al_background_source;
 } GameState;
 
 int GameInit(GameState* game_state);
