@@ -118,7 +118,7 @@ int main()
     return 0;
 }
 
-unsigned char* PlatformImgLoad(char* fileName, int* width, int* height)
+unsigned char* PlatformImgLoad(const char* fileName, int* width, int* height)
 {
     int n;
     char filePath[1000];

@@ -11,7 +11,7 @@
 #define LOGD(M, ...)  printf("[DEBUG] %s:%d - " M "", __FILE__, __LINE__, ##__VA_ARGS__)
 #define LOGE(M, ...)  printf("[ERROR] %s:%d - " M "", __FILE__, __LINE__, ##__VA_ARGS__)
 
-unsigned char* PlatformImgLoad(char* fileName, int* width, int* height);
+unsigned char* PlatformImgLoad(const char* fileName, int* width, int* height);
 void PlatformImgFree(unsigned char* data);
 FILE* platform_fopen(const char* fileName, const char* mode);
 void platform_fclose(FILE* fp);

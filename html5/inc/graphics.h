@@ -7,53 +7,41 @@
 
 #include <GLES2/gl2.h>
 
-#include "stb_truetype.h"
+#include "content.h"
 
+#define MAX_ENTITY_PLANES 4
 #define MAX_ENTITIES_PER_PLANE 512
 #define MAX_Z_INDEXES 100
-
-typedef struct {
-    GLuint gl_tex;
-    stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
-} FontFace;
 
 typedef struct {
     GLuint gl_program;
     GLuint gl_pos_attrib;
     GLuint gl_tex_attrib;
     GLuint gl_mvp_uniform;
-    GLuint gl_color_uniform;
     GLuint gl_sampler_uniform;
-    GLuint gl_vbo;
-} FontShader;
+} QuadShader;
 
 typedef struct {
-    float x0, y0, s0, t0; // left-top
-    float x1, y1, s1, t1; // right-bottom
+    Sprite *sprite;
+    int x, y;
 } Entity;
 
 typedef struct {
     Entity entities[MAX_ENTITIES_PER_PLANE];
     int n_entities;
     int z_index;
-    int gl_vbo;
-    int gl_tex;
+    GLuint gl_vbo;
+    GLuint gl_tex;
 } EntityPlane;
 
 typedef struct {
     float aspect_ratio;
-    EntityPlane planes[4];
+    QuadShader quad_shader;
 
-    GLuint gl_simple_shader;
-    GLuint gl_pos_attrib;
-    GLuint gl_tex_attrib;
-    GLuint gl_mvp_uniform;
-    GLuint gl_sampler_uniform;
-    GLuint gl_vbo;
-    GLuint gl_tex;
+    EntityPlane planes[MAX_ENTITY_PLANES];
+    int n_planes;
 
-    FontFace font;
-    FontShader font_shader;
+    float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
 } GraphicsState;
 
 int GraphicsInit(GraphicsState* graphics_state);

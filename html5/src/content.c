@@ -3,3 +3,9 @@
 // found in the LICENSE file.
 
 #include "content.h"
+
+Sprite g_sample_sprite = {
+    (512.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
+    (639.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
+    1.0f, 1.0f,
+};

@@ -18,4 +18,6 @@ typedef struct {
     int duration; // in multiples of 33.33ms
 } KeyFrame;
 
+extern Sprite g_sample_sprite;
+
 #endif
