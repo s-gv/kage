@@ -83,9 +83,10 @@ int GraphicsInit(GameState* game_state)
         "attribute vec2 a_pos;\n"
         "attribute vec2 a_tex;\n"
         "uniform mat4 u_mvp;\n"
+        "uniform float u_z;"
         "varying vec2 v_tex;\n"
         "void main() {\n"
-        "    gl_Position = u_mvp * vec4(a_pos.xy, 0.0, 1.0);\n"
+        "    gl_Position = u_mvp * vec4(a_pos.xy, u_z, 1.0);\n"
         "    v_tex = a_tex;\n"
         "}\n";
     const GLchar* fragment_src =
@@ -100,6 +101,7 @@ int GraphicsInit(GameState* game_state)
     game_state->quad_shader.gl_tex_attrib = glGetAttribLocation(game_state->quad_shader.gl_program, "a_tex");
     game_state->quad_shader.gl_sampler_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_sampler");
     game_state->quad_shader.gl_mvp_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_mvp");
+    game_state->quad_shader.gl_z_uniform = glGetUniformLocation(game_state->quad_shader.gl_program, "u_z");
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,8 +155,11 @@ void GraphicsLoop(GameState* game_state)
     mvp_matrix[0] = 1.0f / game_state->aspect_ratio;
 
     for(int i = 0; i < game_state->n_planes; i++) {
-        EntityPlane *plane = &game_state->planes[i];
-        for(int j = 0; j < game_state->planes[i].n_entities; j++) {
+        EntityPlane *plane = game_state->planes[i];
+        if(plane->n_entities <= 0) {
+            continue;
+        }
+        for(int j = 0; j < plane->n_entities; j++) {
             Entity *entity = &plane->entities[j];
             Sprite *sprite = entity->sprite;
 
@@ -191,9 +196,11 @@ void GraphicsLoop(GameState* game_state)
         glBindTexture(GL_TEXTURE_2D, plane->gl_tex);
         glUniform1i(game_state->quad_shader.gl_sampler_uniform, 0);
 
+        glUniform1f(game_state->quad_shader.gl_z_uniform, (i*-1.0f)/MAX_ENTITY_PLANES);
+
         glUniformMatrix4fv(game_state->quad_shader.gl_mvp_uniform, 1, GL_FALSE, mvp_matrix);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6 * game_state->planes[i].n_entities);
+        glDrawArrays(GL_TRIANGLES, 0, 6 * plane->n_entities);
     }
     
     //glChk();

@@ -10,9 +10,8 @@
 #include "content.h"
 
 #define GAME_TICK_MS (1000.0f/60.0f)
-#define MAX_ENTITY_PLANES 4
-#define MAX_ENTITIES_PER_PLANE 512
-#define MAX_Z_INDEXES 100
+#define MAX_ENTITY_PLANES 32
+#define MAX_ENTITIES_PER_PLANE 32
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
@@ -23,6 +22,13 @@ typedef enum {
     GAME_INPUT_EVENT_PAUSE,
     GAME_INPUT_EVENT_PRESS,
 } GameInputEventType;
+
+typedef enum {
+    PLAY_STATE_START_SPLASH,
+    PLAY_STATE_PLAYING,
+    PLAY_STATE_STOP_SPLASH,
+    PLAY_STATE_PAUSE,
+} PlayState;
 
 typedef struct {
     GameInputEventType event_type;
@@ -38,7 +44,6 @@ typedef struct {
 typedef struct {
     Entity entities[MAX_ENTITIES_PER_PLANE];
     int n_entities;
-    int z_index;
     GLuint gl_vbo;
     GLuint gl_tex;
 } EntityPlane;
@@ -48,6 +53,7 @@ typedef struct {
     GLuint gl_pos_attrib;
     GLuint gl_tex_attrib;
     GLuint gl_mvp_uniform;
+    GLuint gl_z_uniform;
     GLuint gl_sampler_uniform;
 } QuadShader;
 
@@ -55,12 +61,18 @@ typedef struct {
     float aspect_ratio;
     QuadShader quad_shader;
 
-    int n_frames;
+    EntityPlane splash_plane;
+    EntityPlane sample_plane;
+    EntityPlane bg_plane;
 
-    EntityPlane planes[MAX_ENTITY_PLANES];
+    EntityPlane *planes[MAX_ENTITY_PLANES];
     int n_planes;
 
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
+
+    PlayState play_state;
+
+    int n_frames;
 
     int al_background_buffer;
     int al_background_source;
