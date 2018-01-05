@@ -34,8 +34,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 {
     EntityPlane *plane = &game_state->planes[0];
 
-    float x = (game_state->n_frames % 50) / 50.0f, y = 0;
-    Entity entity = {&g_sample_sprite, x, y};
+    //float x = (game_state->n_frames % 50) / 50.0f, y = 0;
+    Entity entity = {&g_sample_sprite, 0, 0};
     plane->entities[0] = entity;
     plane->n_entities = 1;
 
