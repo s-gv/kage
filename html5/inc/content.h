@@ -18,8 +18,14 @@ typedef struct {
     int duration; // in multiples of 33.33ms
 } KeyFrame;
 
+typedef struct {
+    KeyFrame key_frames[MAX_KEYFRAMES];
+    int n_keyframes;
+} AnimSeq;
+
 extern Sprite g_sample_sprite;
 extern Sprite g_start_splash_sprite;
 extern Sprite g_bg_sun_sprite;
+extern AnimSeq g_kage_anim;
 
 #endif

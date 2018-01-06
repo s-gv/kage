@@ -21,7 +21,7 @@ int GameInit(GameState* game_state)
     if(game_state->aspect_ratio == 0) {
         game_state->aspect_ratio = 16.0f/9.0f;
     }
-    if(LoadTexture(&game_state->gl_sample_tex, "atlas.png") != 0) {
+    if(LoadTexture(&game_state->gl_player_tex, "atlas.png") != 0) {
         LOGE("Texture load error\n");
         return -1;
     }
@@ -56,8 +56,23 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         bg_plane->gl_tex = game_state->gl_bg_tex;
         bg_plane->entities[0] = (const Entity){&g_bg_sun_sprite, 1.0f, 0.6f};
         bg_plane->n_entities = 1;
+
+        EntityPlane* player_plane = &game_state->planes[1];
+        player_plane->gl_tex = game_state->gl_player_tex;
+        player_plane->entities[0] = (const Entity){NULL, -1.0f, 0.1f};
+        player_plane->entities[0].sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
+        game_state->player_kf_duration++;
+        if(game_state->player_kf_duration >= g_kage_anim.key_frames[game_state->player_kf_idx].duration) {
+            game_state->player_kf_idx++;
+            if(game_state->player_kf_idx >= g_kage_anim.n_keyframes) {
+                game_state->player_kf_idx = 0;
+            }
+            game_state->player_kf_duration = 0;
+        }
+
+        player_plane->n_entities = 1;
         
-        game_state->n_planes = 1;
+        game_state->n_planes = 2;
     }
     game_state->n_frames++;
 }

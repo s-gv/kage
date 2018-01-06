@@ -4,10 +4,22 @@
 
 #include "content.h"
 
-Sprite g_sample_sprite = {
-    (512.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
-    (639.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
-    1.0f, 1.0f,
+Sprite g_kage0_sprite = {
+    (640.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
+    (767.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
+    0.5f, 0.5f,
+};
+
+Sprite g_kage1_sprite = {
+    (768.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
+    (895.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
+    0.5f, 0.5f,
+};
+
+Sprite g_kage2_sprite = {
+    (896.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
+    (1023.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
+    0.5f, 0.5f,
 };
 
 Sprite g_start_splash_sprite = {
@@ -20,4 +32,16 @@ Sprite g_bg_sun_sprite = {
     (000.0f + 0.5f)/1024.0f, (000.0f + 0.5f)/1024.0f,
     (127.0f + 0.5f)/1024.0f, (127.0f + 0.5f)/1024.0f,
     0.5f, 0.5f,
+};
+
+AnimSeq g_kage_anim = {
+    {
+        {&g_kage0_sprite, 5},
+        {&g_kage1_sprite, 5},
+        {&g_kage2_sprite, 5},
+        {&g_kage2_sprite, 5},
+        {&g_kage1_sprite, 5},
+        {&g_kage0_sprite, 5},
+    },
+    6
 };

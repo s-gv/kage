@@ -61,12 +61,15 @@ typedef struct {
     QuadShader quad_shader;
 
     GLuint gl_splash_tex;
-    GLuint gl_sample_tex;
+    GLuint gl_player_tex;
     GLuint gl_bg_tex;
 
     EntityPlane planes[MAX_ENTITY_PLANES];
     GLuint gl_vbos[MAX_ENTITY_PLANES];
     int n_planes;
+
+    int player_kf_idx;
+    int player_kf_duration;
 
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
 
