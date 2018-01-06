@@ -20,6 +20,6 @@ typedef struct {
 
 extern Sprite g_sample_sprite;
 extern Sprite g_start_splash_sprite;
-extern Sprite g_bg_sprite;
+extern Sprite g_bg_sun_sprite;
 
 #endif

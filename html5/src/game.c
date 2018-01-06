@@ -54,15 +54,10 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
     if(game_state->play_state == PLAY_STATE_PLAYING) {
         EntityPlane* bg_plane = &game_state->planes[0];
         bg_plane->gl_tex = game_state->gl_bg_tex;
-        bg_plane->entities[0] = (const Entity){&g_start_splash_sprite, 0, 0};
+        bg_plane->entities[0] = (const Entity){&g_bg_sun_sprite, 1.0f, 0.6f};
         bg_plane->n_entities = 1;
         
-        EntityPlane* sample_plane = &game_state->planes[1];
-        sample_plane->gl_tex = game_state->gl_sample_tex;
-        sample_plane->entities[0] = (const Entity){&g_sample_sprite, 0, 0};
-        sample_plane->n_entities = 1;
-        
-        game_state->n_planes = 2;
+        game_state->n_planes = 1;
     }
     game_state->n_frames++;
 }
