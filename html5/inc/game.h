@@ -61,7 +61,7 @@ typedef struct {
     QuadShader quad_shader;
 
     GLuint gl_splash_tex;
-    GLuint gl_player_tex;
+    GLuint gl_farbg_tex;
     GLuint gl_bg_tex;
 
     EntityPlane planes[MAX_ENTITY_PLANES];

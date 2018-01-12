@@ -21,7 +21,7 @@ int GameInit(GameState* game_state)
     if(game_state->aspect_ratio == 0) {
         game_state->aspect_ratio = 16.0f/9.0f;
     }
-    if(LoadTexture(&game_state->gl_player_tex, "atlas.png") != 0) {
+    if(LoadTexture(&game_state->gl_farbg_tex, "farbg.png") != 0) {
         LOGE("Texture load error\n");
         return -1;
     }
@@ -47,19 +47,26 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         game_state->n_planes = 1;
 
-        if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
+        if(game_input.event_type != GAME_INPUT_EVENT_NULL || game_state->n_frames > 60) {
             game_state->play_state = PLAY_STATE_PLAYING;
         }
     }
     if(game_state->play_state == PLAY_STATE_PLAYING) {
-        EntityPlane* bg_plane = &game_state->planes[0];
-        bg_plane->gl_tex = game_state->gl_bg_tex;
-        bg_plane->entities[0] = (const Entity){&g_bg_sun_sprite, 1.0f, 0.6f};
-        bg_plane->n_entities = 1;
+        EntityPlane* farbg_plane = &game_state->planes[0];
+        farbg_plane->gl_tex = game_state->gl_farbg_tex;
+        farbg_plane->entities[0] = (const Entity){&g_farbg_sprites[0], 0.0f, 0.0f};
+        farbg_plane->n_entities = 1;
 
-        EntityPlane* player_plane = &game_state->planes[1];
-        player_plane->gl_tex = game_state->gl_player_tex;
-        player_plane->entities[0] = (const Entity){NULL, -1.0f, 0.1f};
+        EntityPlane* bg_plane = &game_state->planes[1];
+        bg_plane->gl_tex = game_state->gl_bg_tex;
+        bg_plane->entities[0] = (const Entity){&g_cloud_sprites[0], 0.0f, 0.6f};
+        bg_plane->entities[1] = (const Entity){&g_bush_sprites[0], -1.0f, -0.4f};
+        bg_plane->entities[2] = (const Entity){&g_building_sprites[0], 1.0f, -0.4f};
+        bg_plane->n_entities = 3;
+        
+        EntityPlane* player_plane = &game_state->planes[2];
+        player_plane->gl_tex = game_state->gl_bg_tex;
+        player_plane->entities[0] = (const Entity){NULL, -1.0f, 0.25f};
         player_plane->entities[0].sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
         game_state->player_kf_duration++;
         if(game_state->player_kf_duration >= g_kage_anim.key_frames[game_state->player_kf_idx].duration) {
@@ -72,7 +79,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         player_plane->n_entities = 1;
         
-        game_state->n_planes = 2;
+        game_state->n_planes = 3;
     }
     game_state->n_frames++;
 }
