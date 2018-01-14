@@ -37,36 +37,86 @@ int GameInit(GameState* game_state)
     return 0;
 }
 
+int LoadFarBg(int world_slice, Entity *entities, int n_entities)
+{
+    for(int i = 0; i < n_entities; i++) {
+        Entity *entity = &entities[i];
+        if(entity->type == ENTITY_TYPE_NULL) {
+            *entity = (const Entity){&g_farbg_sprites[world_slice % 2], world_slice*4000, 0, ENTITY_TYPE_FARBG};
+            return 0;
+        }
+    }
+    return -1;
+}
+
+void ClearEntities(Entity *entities, int n_entities)
+{
+    for(int i = 0; i < n_entities; i++) {
+        entities[i].type = ENTITY_TYPE_NULL;
+    }
+}
+void ClearOldEntities(Entity *entities, int n_entities, int world_x)
+{
+    for(int i = 0; i < n_entities; i++) {
+        Entity *entity = &entities[i];
+        if((entity->x - world_x) < -WORLD_SLICE_WIDTH) {
+            entity->type = ENTITY_TYPE_NULL;
+        }
+    }
+}
+
 void GameStateUpdate(GameState* game_state, GameInput game_input)
 {
     if(game_state->play_state == PLAY_STATE_START_SPLASH) {
         EntityPlane* splash_plane = &game_state->planes[0];
         splash_plane->gl_tex = game_state->gl_splash_tex;
-        splash_plane->entities[0] = (const Entity){&g_start_splash_sprite, 0, 0};
-        splash_plane->n_entities = 1;
+        splash_plane->entities[0] = (const Entity){&g_start_splash_sprite, 0, 0, ENTITY_TYPE_SPLASH};
 
         game_state->n_planes = 1;
 
         if(game_input.event_type != GAME_INPUT_EVENT_NULL || game_state->n_frames > 60) {
-            game_state->play_state = PLAY_STATE_PLAYING;
+            game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }
-    if(game_state->play_state == PLAY_STATE_PLAYING) {
+    if(game_state->play_state == PLAY_STATE_START_PLAY) {
         EntityPlane* farbg_plane = &game_state->planes[0];
         farbg_plane->gl_tex = game_state->gl_farbg_tex;
-        farbg_plane->entities[0] = (const Entity){&g_farbg_sprites[0], 0.0f, 0.0f};
-        farbg_plane->n_entities = 1;
+        farbg_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadFarBg(0, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadFarBg(1, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        EntityPlane* bg_plane = &game_state->planes[1];
-        bg_plane->gl_tex = game_state->gl_bg_tex;
-        bg_plane->entities[0] = (const Entity){&g_cloud_sprites[0], 0.0f, 0.6f};
-        bg_plane->entities[1] = (const Entity){&g_bush_sprites[0], -1.0f, -0.4f};
-        bg_plane->entities[2] = (const Entity){&g_building_sprites[0], 1.0f, -0.4f};
-        bg_plane->n_entities = 3;
-        
-        EntityPlane* player_plane = &game_state->planes[2];
+        EntityPlane* player_plane = &game_state->planes[1];
         player_plane->gl_tex = game_state->gl_bg_tex;
-        player_plane->entities[0] = (const Entity){NULL, -1.0f, 0.25f};
+        player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        player_plane->entities[0] = (const Entity){&g_kage_sprites[0], -1000, 250, ENTITY_TYPE_PLAYER};
+
+        game_state->n_planes = 2;
+
+        game_state->play_state = PLAY_STATE_PLAYING;
+    }
+    if(game_state->play_state == PLAY_STATE_PLAYING) {
+        //         Slice 0          Slice 1          Slice 2
+        //   |                |                |                |
+        //   |                |                |                |
+        //   |        *       |        *       |        *       |
+        //   |                |                |                |
+        //   |                |                |                |
+        // -2000      0      2000     4000    6000     8000    10000
+
+        EntityPlane* farbg_plane = &game_state->planes[0];
+        EntityPlane* player_plane = &game_state->planes[1];
+
+        if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
+            ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
+            int next_world_slice = ((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) + 1;
+            int res = LoadFarBg(next_world_slice, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
+            if(res != 0) {
+                LOGE("Out of space for entities\n");
+            }
+        }
+        farbg_plane->offset_x += FARBG_SPEED;
+
         player_plane->entities[0].sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
         game_state->player_kf_duration++;
         if(game_state->player_kf_duration >= g_kage_anim.key_frames[game_state->player_kf_idx].duration) {
@@ -77,9 +127,54 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             game_state->player_kf_duration = 0;
         }
 
-        player_plane->n_entities = 1;
+        game_state->n_planes = 2;
         
-        game_state->n_planes = 3;
+
+        /*
+        EntityPlane* bg_plane = &game_state->planes[1];
+        bg_plane->gl_tex = game_state->gl_bg_tex;
+
+        // Move all objects to the left (or equivalently, the camera to the right)
+        game_state->pos_x += 0.005;
+        float farbg_speed = 0.005;
+        farbg_plane->entities[0].x -= farbg_speed;
+        farbg_plane->entities[1].x -= farbg_speed;
+        
+
+        if(game_state->pos_x > 4.0f) {
+            
+
+            // Load new entities for the next slice
+            float offset_x = 4.0f;
+            float offset_y = 0;
+            
+            //
+        }
+        double farbg_pos_x = game_state->pos_x / 4;
+        double farbg_cam_pos_x = farbg_pos_x - (((int)(farbg_pos_x))/4)*4;
+        int farbg_cur_idx = 0;
+        int farbg_next_idx = 1;
+        if(((int)(farbg_pos_x))/4 % 2 == 1) {
+            farbg_cur_idx = 1;
+            farbg_next_idx = 0;
+        }
+        
+        farbg_plane->entities[0] = (const Entity){&g_farbg_sprites[farbg_cur_idx], 0.0f - farbg_cam_pos_x, 0.0f};
+        farbg_plane->entities[1] = (const Entity){&g_farbg_sprites[farbg_next_idx], 4.0f - farbg_cam_pos_x, 0.0f};
+        farbg_plane->n_entities = 2;
+
+        
+        
+        bg_plane->entities[0] = (const Entity){&g_cloud_sprites[0], 0.0f, 0.6f};
+        bg_plane->entities[1] = (const Entity){&g_bush_sprites[0], -1.0f, -0.4f};
+        bg_plane->entities[2] = (const Entity){&g_building_sprites[0], 1.0f, -0.4f};
+        bg_plane->n_entities = 3;
+        
+        
+        
+
+        player_plane->n_entities = 1;
+        */
     }
     game_state->n_frames++;
 }

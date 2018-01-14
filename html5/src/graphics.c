@@ -158,17 +158,22 @@ void GraphicsLoop(GameState* game_state)
 
     for(int i = 0; i < game_state->n_planes; i++) {
         EntityPlane *plane = &game_state->planes[i];
-        if(plane->n_entities <= 0) {
-            continue;
-        }
-        for(int j = 0; j < plane->n_entities; j++) {
+        int offset_x = plane->offset_x;
+        int offset_y = plane->offset_y;
+        float zoom = plane->zoom;
+
+        for(int j = 0; j < MAX_ENTITIES_PER_PLANE; j++) {
             Entity *entity = &plane->entities[j];
             Sprite *sprite = entity->sprite;
 
             float s0 = sprite->s0; float t0 = sprite->t0;
             float s1 = sprite->s1; float t1 = sprite->t1;
-            float x0 = entity->x - sprite->w/2; float y0 = entity->y + sprite->h/2;
-            float x1 = entity->x + sprite->w/2; float y1 = entity->y - sprite->h/2;
+            float x0 = (entity->x-offset_x)*zoom - sprite->w/2; float y0 = (entity->y-offset_y)*zoom + sprite->h/2;
+            float x1 = (entity->x-offset_x)*zoom + sprite->w/2; float y1 = (entity->y-offset_y)*zoom - sprite->h/2;
+
+            if(entity->type == ENTITY_TYPE_NULL) {
+                x0 = -10.0f; x1 = -10.0f; y0 = -10.0f; y1 = -10.0f;
+            }
 
             float *qverts = &game_state->sprite_verts[24*j];
 
@@ -202,7 +207,7 @@ void GraphicsLoop(GameState* game_state)
 
         glUniformMatrix4fv(game_state->quad_shader.gl_mvp_uniform, 1, GL_FALSE, mvp_matrix);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6 * plane->n_entities);
+        glDrawArrays(GL_TRIANGLES, 0, 6 * MAX_ENTITIES_PER_PLANE);
     }
     
     //glChk();

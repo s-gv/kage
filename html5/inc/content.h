@@ -28,6 +28,7 @@ extern Sprite g_farbg_sprites[2];
 extern Sprite g_cloud_sprites[4];
 extern Sprite g_bush_sprites[4];
 extern Sprite g_building_sprites[8];
+extern Sprite g_kage_sprites[8];
 
 extern AnimSeq g_kage_anim;
 

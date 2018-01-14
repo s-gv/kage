@@ -10,8 +10,10 @@
 #include "content.h"
 
 #define GAME_TICK_MS (1000.0f/60.0f)
-#define MAX_ENTITY_PLANES 32
-#define MAX_ENTITIES_PER_PLANE 32
+#define MAX_ENTITY_PLANES 16
+#define MAX_ENTITIES_PER_PLANE 16
+#define WORLD_SLICE_WIDTH 4000
+#define FARBG_SPEED 5
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
@@ -23,28 +25,40 @@ typedef enum {
     GAME_INPUT_EVENT_PRESS,
 } GameInputEventType;
 
-typedef enum {
-    PLAY_STATE_START_SPLASH,
-    PLAY_STATE_PLAYING,
-    PLAY_STATE_STOP_SPLASH,
-    PLAY_STATE_PAUSE,
-} PlayState;
-
 typedef struct {
     GameInputEventType event_type;
     float x; // (0,0) is left-top and (1,1) is right-bottom
     float y;
 } GameInput;
 
+typedef enum {
+    PLAY_STATE_START_SPLASH,
+    PLAY_STATE_START_PLAY,
+    PLAY_STATE_PLAYING,
+    PLAY_STATE_STOP_SPLASH,
+    PLAY_STATE_PAUSE,
+} PlayState;
+
+typedef enum {
+    ENTITY_TYPE_NULL,
+    ENTITY_TYPE_SPLASH,
+    ENTITY_TYPE_FARBG,
+    ENTITY_TYPE_BG,
+    ENTITY_TYPE_PLAYER,
+    ENTITY_TYPE_FOOD
+} EntityType;
+
 typedef struct {
     Sprite *sprite;
-    float x, y;
+    int x, y;
+    EntityType type;
 } Entity;
 
 typedef struct {
     Entity entities[MAX_ENTITIES_PER_PLANE];
-    int n_entities;
     GLuint gl_tex;
+    int offset_x, offset_y;
+    float zoom;
 } EntityPlane;
 
 typedef struct {
@@ -74,6 +88,8 @@ typedef struct {
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
 
     PlayState play_state;
+
+    int pos_x;
 
     int n_frames;
 
