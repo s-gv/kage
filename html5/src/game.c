@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <stdlib.h>
+
 #include "game.h"
 #include "platform.h"
 #include "content.h"
@@ -37,16 +39,37 @@ int GameInit(GameState* game_state)
     return 0;
 }
 
-int LoadFarBg(int world_slice, Entity *entities, int n_entities)
+int AddEntity(Entity entity, Entity *entities, int n_entities)
 {
     for(int i = 0; i < n_entities; i++) {
-        Entity *entity = &entities[i];
-        if(entity->type == ENTITY_TYPE_NULL) {
-            *entity = (const Entity){&g_farbg_sprites[world_slice % 2], world_slice*4000, 0, ENTITY_TYPE_FARBG};
+        Entity *e = &entities[i];
+        if(e->type == ENTITY_TYPE_NULL) {
+            *e = entity;
             return 0;
         }
     }
     return -1;
+}
+
+int LoadFarBg(int world_slice, Entity *entities, int n_entities)
+{
+    Entity e = (const Entity){&g_farbg_sprites[world_slice % 2], world_slice*4000, 0, ENTITY_TYPE_FARBG};
+    return AddEntity(e, entities, n_entities);
+}
+int LoadBg(int world_slice, Entity *entities, int n_entities)
+{
+    Entity es[3] = {
+        (const Entity){&g_cloud_sprites[rand() % 4], world_slice*4000, 600, ENTITY_TYPE_BG},
+        (const Entity){&g_bush_sprites[rand() % 4], world_slice*4000 -1000, -400, ENTITY_TYPE_BG},
+        (const Entity){&g_building_sprites[rand() % 8], world_slice*4000 + 1000, -400, ENTITY_TYPE_BG}
+    };
+    for(int i = 0; i < 3; i++) {
+        int res = AddEntity(es[i], entities, n_entities);
+        if(res != 0) {
+            return -1;
+        }
+    }
+    return 0;
 }
 
 void ClearEntities(Entity *entities, int n_entities)
@@ -79,6 +102,17 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
     }
     if(game_state->play_state == PLAY_STATE_START_PLAY) {
+        // Horizontally scrolling world looks like this:
+        //
+        //            Slice 0          Slice 1          Slice 2
+        //      |                |                |                |
+        //      |                |                |                |
+        //      |        *       |        *       |        *       |
+        //      |                |                |                |
+        //      |                |                |                |
+        // x: -2000      0      2000     4000    6000     8000    10000
+        // ymin: -1000; ymax: +1000
+
         EntityPlane* farbg_plane = &game_state->planes[0];
         farbg_plane->gl_tex = game_state->gl_farbg_tex;
         farbg_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
@@ -86,26 +120,27 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         LoadFarBg(0, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFarBg(1, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        EntityPlane* player_plane = &game_state->planes[1];
+        EntityPlane* bg_plane = &game_state->planes[1];
+        bg_plane->gl_tex = game_state->gl_bg_tex;
+        bg_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(bg_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadBg(0, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadBg(1, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        EntityPlane* player_plane = &game_state->planes[2];
         player_plane->gl_tex = game_state->gl_bg_tex;
         player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
         player_plane->entities[0] = (const Entity){&g_kage_sprites[0], -1000, 250, ENTITY_TYPE_PLAYER};
 
-        game_state->n_planes = 2;
+        game_state->n_planes = 3;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
     if(game_state->play_state == PLAY_STATE_PLAYING) {
-        //         Slice 0          Slice 1          Slice 2
-        //   |                |                |                |
-        //   |                |                |                |
-        //   |        *       |        *       |        *       |
-        //   |                |                |                |
-        //   |                |                |                |
-        // -2000      0      2000     4000    6000     8000    10000
-
         EntityPlane* farbg_plane = &game_state->planes[0];
-        EntityPlane* player_plane = &game_state->planes[1];
+        EntityPlane* bg_plane = &game_state->planes[1];
+        EntityPlane* player_plane = &game_state->planes[2];
 
         if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
@@ -117,6 +152,16 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
         farbg_plane->offset_x += FARBG_SPEED;
 
+        if(((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) > (bg_plane->offset_x / WORLD_SLICE_WIDTH)) {
+            ClearOldEntities(bg_plane->entities, MAX_ENTITIES_PER_PLANE, bg_plane->offset_x);
+            int next_world_slice = ((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) + 1;
+            int res = LoadBg(next_world_slice, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
+            if(res != 0) {
+                LOGE("Out of space for entities\n");
+            }
+        }
+        bg_plane->offset_x += BG_SPEED;
+
         player_plane->entities[0].sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
         game_state->player_kf_duration++;
         if(game_state->player_kf_duration >= g_kage_anim.key_frames[game_state->player_kf_idx].duration) {
@@ -127,7 +172,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             game_state->player_kf_duration = 0;
         }
 
-        game_state->n_planes = 2;
+        game_state->n_planes = 3;
         
 
         /*
@@ -165,9 +210,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         
         
-        bg_plane->entities[0] = (const Entity){&g_cloud_sprites[0], 0.0f, 0.6f};
-        bg_plane->entities[1] = (const Entity){&g_bush_sprites[0], -1.0f, -0.4f};
-        bg_plane->entities[2] = (const Entity){&g_building_sprites[0], 1.0f, -0.4f};
+        
         bg_plane->n_entities = 3;
         
         

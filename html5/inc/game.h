@@ -13,7 +13,8 @@
 #define MAX_ENTITY_PLANES 16
 #define MAX_ENTITIES_PER_PLANE 16
 #define WORLD_SLICE_WIDTH 4000
-#define FARBG_SPEED 5
+#define FARBG_SPEED 1
+#define BG_SPEED 10
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
