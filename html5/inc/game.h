@@ -13,8 +13,16 @@
 #define MAX_ENTITY_PLANES 16
 #define MAX_ENTITIES_PER_PLANE 16
 #define WORLD_SLICE_WIDTH 4000
+
 #define FARBG_SPEED 1
 #define BG_SPEED 10
+
+#define KAGE_X -1000
+#define KAGE_NEUTRAL_Y 400
+#define KAGE_UP_Y 700
+#define KAGE_DOWN_Y 100
+#define KAGE_SPEED_Y 30
+
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
@@ -48,6 +56,12 @@ typedef enum {
     ENTITY_TYPE_PLAYER,
     ENTITY_TYPE_FOOD
 } EntityType;
+
+typedef enum {
+    KAGE_MOVING_STRAIGHT,
+    KAGE_MOVING_UP,
+    KAGE_MOVING_DOWN
+} KageState;
 
 typedef struct {
     Sprite *sprite;
@@ -89,6 +103,7 @@ typedef struct {
     float sprite_verts[3*2*MAX_ENTITIES_PER_PLANE*4];
 
     PlayState play_state;
+    KageState kage_state;
 
     int pos_x;
 

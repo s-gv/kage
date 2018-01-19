@@ -131,7 +131,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         player_plane->gl_tex = game_state->gl_bg_tex;
         player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
         ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
-        player_plane->entities[0] = (const Entity){&g_kage_sprites[0], -1000, 250, ENTITY_TYPE_PLAYER};
+        player_plane->entities[0] = (const Entity){&g_kage_sprites[0], KAGE_X, KAGE_NEUTRAL_Y, ENTITY_TYPE_PLAYER};
 
         game_state->n_planes = 3;
 
@@ -162,7 +162,28 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
         bg_plane->offset_x += BG_SPEED;
 
-        player_plane->entities[0].sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
+        
+        if(game_state->kage_state == KAGE_MOVING_STRAIGHT) {
+            if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_UP) {
+                game_state->kage_state = KAGE_MOVING_UP;
+            }
+            if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_DOWN) {
+                game_state->kage_state = KAGE_MOVING_DOWN;
+            }
+        }
+        
+        Entity* player_entity = &player_plane->entities[0];
+        if(game_state->kage_state == KAGE_MOVING_UP && player_entity->y < KAGE_UP_Y) {
+            player_entity->y += KAGE_SPEED_Y;
+        }
+        if(game_state->kage_state == KAGE_MOVING_DOWN && player_entity->y > KAGE_DOWN_Y) {
+            player_entity->y -= KAGE_SPEED_Y;
+        }
+        if(player_entity->y == KAGE_NEUTRAL_Y || player_entity->y == KAGE_UP_Y || player_entity->y == KAGE_DOWN_Y) {
+            game_state->kage_state = KAGE_MOVING_STRAIGHT;
+        }
+
+        player_entity->sprite = g_kage_anim.key_frames[game_state->player_kf_idx].sprite;
         game_state->player_kf_duration++;
         if(game_state->player_kf_duration >= g_kage_anim.key_frames[game_state->player_kf_idx].duration) {
             game_state->player_kf_idx++;
