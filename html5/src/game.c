@@ -35,6 +35,10 @@ int GameInit(GameState* game_state)
         LOGE("Texture load error\n");
         return -1;
     }
+    if(LoadTexture(&game_state->gl_target_tex, "target.png") != 0) {
+        LOGE("Texture load error\n");
+        return -1;
+    }
     if(LoadTexture(&game_state->gl_kage_tex, "kage.png") != 0) {
         LOGE("Texture load error\n");
         return -1;
@@ -60,12 +64,29 @@ int LoadFarBg(int world_slice, Entity *entities, int n_entities)
     Entity e = (const Entity){&g_farbg_sprites[world_slice % 2], world_slice*4000, 0, ENTITY_TYPE_FARBG};
     return AddEntity(e, entities, n_entities);
 }
+
 int LoadBg(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[3] = {
         (const Entity){&g_cloud_sprites[rand() % 4], world_slice*4000, 600, ENTITY_TYPE_BG},
         (const Entity){&g_bush_sprites[rand() % 4], world_slice*4000 -1000, -400, ENTITY_TYPE_BG},
         (const Entity){&g_building_sprites[rand() % 8], world_slice*4000 + 1000, -400, ENTITY_TYPE_BG}
+    };
+    for(int i = 0; i < 3; i++) {
+        int res = AddEntity(es[i], entities, n_entities);
+        if(res != 0) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int LoadTarget(int world_slice, Entity *entities, int n_entities)
+{
+    Entity es[3] = {
+        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 - 1800, -800, ENTITY_TYPE_TARGET},
+        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 - 200, -800, ENTITY_TYPE_TARGET},
+        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 + 1800, -800, ENTITY_TYPE_TARGET}
     };
     for(int i = 0; i < 3; i++) {
         int res = AddEntity(es[i], entities, n_entities);
@@ -131,20 +152,28 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         LoadBg(0, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadBg(1, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        EntityPlane* player_plane = &game_state->planes[2];
+        EntityPlane* target_plane = &game_state->planes[2];
+        target_plane->gl_tex = game_state->gl_target_tex;
+        target_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(target_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadTarget(0, target_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadTarget(1, target_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        EntityPlane* player_plane = &game_state->planes[3];
         player_plane->gl_tex = game_state->gl_kage_tex;
         player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
         ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
         player_plane->entities[0] = (const Entity){&g_kage_sprites[0], KAGE_X, KAGE_NEUTRAL_Y, ENTITY_TYPE_PLAYER};
 
-        game_state->n_planes = 3;
+        game_state->n_planes = 4;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
     if(game_state->play_state == PLAY_STATE_PLAYING) {
         EntityPlane* farbg_plane = &game_state->planes[0];
         EntityPlane* bg_plane = &game_state->planes[1];
-        EntityPlane* player_plane = &game_state->planes[2];
+        EntityPlane* target_plane = &game_state->planes[2];
+        EntityPlane* player_plane = &game_state->planes[3];
 
         if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
@@ -158,13 +187,16 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         if(((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) > (bg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(bg_plane->entities, MAX_ENTITIES_PER_PLANE, bg_plane->offset_x);
+            ClearOldEntities(target_plane->entities, MAX_ENTITIES_PER_PLANE, target_plane->offset_x);
             int next_world_slice = ((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) + 1;
-            int res = LoadBg(next_world_slice, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
-            if(res != 0) {
+            int res1 = LoadBg(next_world_slice, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
+            int res2 = LoadTarget(next_world_slice, target_plane->entities, MAX_ENTITIES_PER_PLANE);
+            if(res1 != 0 || res2 != 0) {
                 LOGE("Out of space for entities\n");
             }
         }
         bg_plane->offset_x += BG_SPEED;
+        target_plane->offset_x += BG_SPEED;
 
         
         if(game_state->kage_state == KAGE_MOVING_STRAIGHT) {
@@ -220,8 +252,6 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 crap_entity->type = ENTITY_TYPE_NULL;
             }
         }
-
-        game_state->n_planes = 3;
     }
     game_state->n_frames++;
 }

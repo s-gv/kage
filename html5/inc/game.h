@@ -57,6 +57,7 @@ typedef enum {
     ENTITY_TYPE_BG,
     ENTITY_TYPE_PLAYER,
     ENTITY_TYPE_CRAP,
+    ENTITY_TYPE_TARGET,
     ENTITY_TYPE_FOOD
 } EntityType;
 
@@ -102,6 +103,7 @@ typedef struct {
     GLuint gl_farbg_tex;
     GLuint gl_bg_tex;
     GLuint gl_kage_tex;
+    GLuint gl_target_tex;
 
     EntityPlane planes[MAX_ENTITY_PLANES];
     GLuint gl_vbos[MAX_ENTITY_PLANES];
