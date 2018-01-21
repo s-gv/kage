@@ -35,6 +35,10 @@ int GameInit(GameState* game_state)
         LOGE("Texture load error\n");
         return -1;
     }
+    if(LoadTexture(&game_state->gl_kage_tex, "kage.png") != 0) {
+        LOGE("Texture load error\n");
+        return -1;
+    }
     LOGI("Game init done.\n");
     return 0;
 }
@@ -128,7 +132,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         LoadBg(1, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
 
         EntityPlane* player_plane = &game_state->planes[2];
-        player_plane->gl_tex = game_state->gl_bg_tex;
+        player_plane->gl_tex = game_state->gl_kage_tex;
         player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
         ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
         player_plane->entities[0] = (const Entity){&g_kage_sprites[0], KAGE_X, KAGE_NEUTRAL_Y, ENTITY_TYPE_PLAYER};
@@ -192,53 +196,32 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             }
             game_state->player_kf_duration = 0;
         }
+        
+        Entity* crap_entity = &player_plane->entities[1];
+        if(game_state->crap_state == CRAP_NONE) {
+            if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_LEFT) {
+                game_state->crap_state = CRAP_FALLING;
+                *crap_entity = (const Entity){&g_crap_sprites[0], player_entity->x, player_entity->y, ENTITY_TYPE_CRAP};
+            }
+        }
+        
+        if(game_state->crap_state == CRAP_FALLING) {
+            crap_entity->y -= CRAP_SPEED_Y;
+            // TODO: Check for collision with targets
+            if(crap_entity->y <= CRAP_MIN_Y) {
+                game_state->crap_state = CRAP_FALLEN;
+            }
+        }
+
+        if(game_state->crap_state == CRAP_FALLEN) {
+            crap_entity->x -= BG_SPEED;
+            if(crap_entity->x < -2000) {
+                game_state->crap_state = CRAP_NONE;
+                crap_entity->type = ENTITY_TYPE_NULL;
+            }
+        }
 
         game_state->n_planes = 3;
-        
-
-        /*
-        EntityPlane* bg_plane = &game_state->planes[1];
-        bg_plane->gl_tex = game_state->gl_bg_tex;
-
-        // Move all objects to the left (or equivalently, the camera to the right)
-        game_state->pos_x += 0.005;
-        float farbg_speed = 0.005;
-        farbg_plane->entities[0].x -= farbg_speed;
-        farbg_plane->entities[1].x -= farbg_speed;
-        
-
-        if(game_state->pos_x > 4.0f) {
-            
-
-            // Load new entities for the next slice
-            float offset_x = 4.0f;
-            float offset_y = 0;
-            
-            //
-        }
-        double farbg_pos_x = game_state->pos_x / 4;
-        double farbg_cam_pos_x = farbg_pos_x - (((int)(farbg_pos_x))/4)*4;
-        int farbg_cur_idx = 0;
-        int farbg_next_idx = 1;
-        if(((int)(farbg_pos_x))/4 % 2 == 1) {
-            farbg_cur_idx = 1;
-            farbg_next_idx = 0;
-        }
-        
-        farbg_plane->entities[0] = (const Entity){&g_farbg_sprites[farbg_cur_idx], 0.0f - farbg_cam_pos_x, 0.0f};
-        farbg_plane->entities[1] = (const Entity){&g_farbg_sprites[farbg_next_idx], 4.0f - farbg_cam_pos_x, 0.0f};
-        farbg_plane->n_entities = 2;
-
-        
-        
-        
-        bg_plane->n_entities = 3;
-        
-        
-        
-
-        player_plane->n_entities = 1;
-        */
     }
     game_state->n_frames++;
 }

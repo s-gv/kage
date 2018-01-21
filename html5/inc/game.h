@@ -23,6 +23,8 @@
 #define KAGE_DOWN_Y 100
 #define KAGE_SPEED_Y 30
 
+#define CRAP_SPEED_Y 75
+#define CRAP_MIN_Y -800
 
 typedef enum {
     GAME_INPUT_EVENT_NULL,
@@ -54,6 +56,7 @@ typedef enum {
     ENTITY_TYPE_FARBG,
     ENTITY_TYPE_BG,
     ENTITY_TYPE_PLAYER,
+    ENTITY_TYPE_CRAP,
     ENTITY_TYPE_FOOD
 } EntityType;
 
@@ -62,6 +65,12 @@ typedef enum {
     KAGE_MOVING_UP,
     KAGE_MOVING_DOWN
 } KageState;
+
+typedef enum {
+    CRAP_NONE,
+    CRAP_FALLING,
+    CRAP_FALLEN
+} CrapState;
 
 typedef struct {
     Sprite *sprite;
@@ -92,6 +101,7 @@ typedef struct {
     GLuint gl_splash_tex;
     GLuint gl_farbg_tex;
     GLuint gl_bg_tex;
+    GLuint gl_kage_tex;
 
     EntityPlane planes[MAX_ENTITY_PLANES];
     GLuint gl_vbos[MAX_ENTITY_PLANES];
@@ -104,6 +114,7 @@ typedef struct {
 
     PlayState play_state;
     KageState kage_state;
+    CrapState crap_state;
 
     int pos_x;
 
