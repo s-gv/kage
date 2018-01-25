@@ -57,7 +57,8 @@ void loop()
 
     double t = emscripten_get_now();
     double dt = (t - last_frame_time);
-    last_frame_time = t;
+    if(dt > GAME_TICK_MS/2)
+        last_frame_time = t;
     
     // if(t < 12000) LOGI("Frame time: %.2f\n", dt);
 

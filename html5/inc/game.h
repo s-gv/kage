@@ -48,6 +48,7 @@ typedef enum {
     PLAY_STATE_PLAYING,
     PLAY_STATE_STOP_SPLASH,
     PLAY_STATE_PAUSE,
+    PLAY_STATE_DYING,
 } PlayState;
 
 typedef enum {

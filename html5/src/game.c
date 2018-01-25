@@ -100,7 +100,7 @@ int LoadTarget(int world_slice, Entity *entities, int n_entities)
 int LoadObstacle(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[1] = {
-        (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, 800, ENTITY_TYPE_OBSTACLE}
+        (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
     };
     for(int i = 0; i < 1; i++) {
         int res = AddEntity(es[i], entities, n_entities);
@@ -148,6 +148,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
     if(game_state->play_state == PLAY_STATE_START_SPLASH) {
         EntityPlane* splash_plane = &game_state->planes[0];
         splash_plane->gl_tex = game_state->gl_splash_tex;
+        splash_plane->offset_x = 0;
+        splash_plane->offset_y = 0;
         splash_plane->entities[0] = (const Entity){&g_start_splash_sprite, 0, 0, ENTITY_TYPE_SPLASH};
 
         game_state->n_planes = 1;
@@ -171,6 +173,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* farbg_plane = &game_state->planes[0];
         farbg_plane->gl_tex = game_state->gl_farbg_tex;
         farbg_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        farbg_plane->offset_x = 0;
+        farbg_plane->offset_y = 0;
         ClearEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFarBg(0, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFarBg(1, farbg_plane->entities, MAX_ENTITIES_PER_PLANE);
@@ -178,6 +182,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* bg_plane = &game_state->planes[1];
         bg_plane->gl_tex = game_state->gl_bg_tex;
         bg_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        bg_plane->offset_x = 0;
+        bg_plane->offset_y = 0;
         ClearEntities(bg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadBg(0, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadBg(1, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
@@ -185,6 +191,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* target_plane = &game_state->planes[2];
         target_plane->gl_tex = game_state->gl_target_tex;
         target_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        target_plane->offset_x = 0;
+        target_plane->offset_y = 0;
         ClearEntities(target_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadTarget(0, target_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadTarget(1, target_plane->entities, MAX_ENTITIES_PER_PLANE);
@@ -192,12 +200,16 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* player_plane = &game_state->planes[3];
         player_plane->gl_tex = game_state->gl_kage_tex;
         player_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        player_plane->offset_x = 0;
+        player_plane->offset_y = 0;
         ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
         player_plane->entities[0] = (const Entity){&g_kage_sprites[0], KAGE_X, KAGE_NEUTRAL_Y, ENTITY_TYPE_PLAYER};
 
         EntityPlane* obstacle_plane = &game_state->planes[4];
         obstacle_plane->gl_tex = game_state->gl_bg_tex;
         obstacle_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        obstacle_plane->offset_x = 0;
+        obstacle_plane->offset_y = 0;
         ClearEntities(obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadObstacle(0, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadObstacle(1, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
@@ -205,9 +217,14 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* food_plane = &game_state->planes[5];
         food_plane->gl_tex = game_state->gl_bg_tex;
         food_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        food_plane->offset_x = 0;
+        food_plane->offset_y = 0;
         ClearEntities(food_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFood(0, food_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFood(1, food_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        game_state->food_counter = 0;
+        game_state->target_counter = 0;
 
         game_state->n_planes = 6;
 
@@ -327,6 +344,33 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                     food->type = ENTITY_TYPE_NULL;
                 }
             }
+        }
+
+        for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
+            Entity* obstacle = &obstacle_plane->entities[i];
+            if(obstacle->type == ENTITY_TYPE_OBSTACLE) {
+                int obstacle_x = obstacle->x - obstacle_plane->offset_x;
+                int obstacle_y = obstacle->y - obstacle_plane->offset_y;
+                if(abs(player_entity->x - obstacle_x) < 250 && abs(player_entity->y - obstacle_y) < 20) {
+                    game_state->play_state = PLAY_STATE_DYING;
+                }
+            }
+        }
+    }
+    if(game_state->play_state == PLAY_STATE_DYING) {
+        game_state->play_state = PLAY_STATE_STOP_SPLASH;
+    }
+    if(game_state->play_state == PLAY_STATE_STOP_SPLASH) {
+        EntityPlane* splash_plane = &game_state->planes[0];
+        splash_plane->gl_tex = game_state->gl_splash_tex;
+        splash_plane->offset_x = 0;
+        splash_plane->offset_y = 0;
+        splash_plane->entities[0] = (const Entity){&g_stop_splash_sprite, 0, 0, ENTITY_TYPE_SPLASH};
+
+        game_state->n_planes = 1;
+
+        if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
+            game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }
     game_state->n_frames++;
