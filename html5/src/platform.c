@@ -58,25 +58,19 @@ void loop()
     double t = emscripten_get_now();
     double dt = (t - last_frame_time);
     last_frame_time = t;
-    acc += dt;
+    
+    if(t < 12000) LOGI("Frame time: %.2f\n", dt);
+
     int n_ticks = 0;
-    while(acc > GAME_TICK_MS) {
-        if(n_ticks < 2) {
-            // If simulation is too far behind, skip until it catches up
-            /*
-            if(t < 2000) {
-                LOGI("tick interval: %.2f\n", t - last_tick);
-                last_tick = t;
-            }
-            */
-            GameStateUpdate(game_state, game_input);
-            n_ticks++;
+    while(dt > GAME_TICK_MS/2) {
+        GameStateUpdate(game_state, game_input);
+        n_ticks++;
+        if(n_ticks > 3) {
+            break;
         }
-        acc -= GAME_TICK_MS;
+        dt -= GAME_TICK_MS;
     }
-    if(n_ticks > 0) {
-        GameRender(game_state);
-    }
+    GameRender(game_state);
     glfwSwapBuffers(window);
 }
 
