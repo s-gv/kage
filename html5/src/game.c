@@ -97,6 +97,36 @@ int LoadTarget(int world_slice, Entity *entities, int n_entities)
     return 0;
 }
 
+int LoadObstacle(int world_slice, Entity *entities, int n_entities)
+{
+    Entity es[1] = {
+        (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, 800, ENTITY_TYPE_OBSTACLE}
+    };
+    for(int i = 0; i < 1; i++) {
+        int res = AddEntity(es[i], entities, n_entities);
+        if(res != 0) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int LoadFood(int world_slice, Entity *entities, int n_entities)
+{
+    Entity es[3] = {
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 1800, 600, ENTITY_TYPE_FOOD},
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, 600, ENTITY_TYPE_FOOD},
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 + 1800, 600, ENTITY_TYPE_FOOD}
+    };
+    for(int i = 0; i < 3; i++) {
+        int res = AddEntity(es[i], entities, n_entities);
+        if(res != 0) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
 void ClearEntities(Entity *entities, int n_entities)
 {
     for(int i = 0; i < n_entities; i++) {
@@ -165,7 +195,21 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         ClearEntities(player_plane->entities, MAX_ENTITIES_PER_PLANE);
         player_plane->entities[0] = (const Entity){&g_kage_sprites[0], KAGE_X, KAGE_NEUTRAL_Y, ENTITY_TYPE_PLAYER};
 
-        game_state->n_planes = 4;
+        EntityPlane* obstacle_plane = &game_state->planes[4];
+        obstacle_plane->gl_tex = game_state->gl_bg_tex;
+        obstacle_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadObstacle(0, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadObstacle(1, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        EntityPlane* food_plane = &game_state->planes[5];
+        food_plane->gl_tex = game_state->gl_bg_tex;
+        food_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        ClearEntities(food_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadFood(0, food_plane->entities, MAX_ENTITIES_PER_PLANE);
+        LoadFood(1, food_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        game_state->n_planes = 6;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
@@ -174,6 +218,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* bg_plane = &game_state->planes[1];
         EntityPlane* target_plane = &game_state->planes[2];
         EntityPlane* player_plane = &game_state->planes[3];
+        EntityPlane* obstacle_plane = &game_state->planes[4];
+        EntityPlane* food_plane = &game_state->planes[5];
 
         if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
@@ -188,16 +234,21 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         if(((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) > (bg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(bg_plane->entities, MAX_ENTITIES_PER_PLANE, bg_plane->offset_x);
             ClearOldEntities(target_plane->entities, MAX_ENTITIES_PER_PLANE, target_plane->offset_x);
+            ClearOldEntities(obstacle_plane->entities, MAX_ENTITIES_PER_PLANE, obstacle_plane->offset_x);
+            ClearOldEntities(food_plane->entities, MAX_ENTITIES_PER_PLANE, food_plane->offset_x);
             int next_world_slice = ((bg_plane->offset_x+BG_SPEED) / WORLD_SLICE_WIDTH) + 1;
             int res1 = LoadBg(next_world_slice, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
             int res2 = LoadTarget(next_world_slice, target_plane->entities, MAX_ENTITIES_PER_PLANE);
-            if(res1 != 0 || res2 != 0) {
+            int res3 = LoadObstacle(next_world_slice, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
+            int res4 = LoadFood(next_world_slice, food_plane->entities, MAX_ENTITIES_PER_PLANE);
+            if(res1 != 0 || res2 != 0 || res3 != 0 || res4 != 0) {
                 LOGE("Out of space for entities\n");
             }
         }
         bg_plane->offset_x += BG_SPEED;
         target_plane->offset_x += BG_SPEED;
-
+        obstacle_plane->offset_x += BG_SPEED;
+        food_plane->offset_x += BG_SPEED;
         
         if(game_state->kage_state == KAGE_MOVING_STRAIGHT) {
             if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_UP) {

@@ -31,6 +31,8 @@ extern Sprite g_building_sprites[8];
 extern Sprite g_kage_sprites[8];
 extern Sprite g_crap_sprites[2];
 extern Sprite g_target_sprites[8];
+extern Sprite g_food_sprites[4];
+extern Sprite g_obstacle_sprites[1];
 
 extern AnimSeq g_kage_anim;
 

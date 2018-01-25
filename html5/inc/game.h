@@ -58,7 +58,8 @@ typedef enum {
     ENTITY_TYPE_PLAYER,
     ENTITY_TYPE_CRAP,
     ENTITY_TYPE_TARGET,
-    ENTITY_TYPE_FOOD
+    ENTITY_TYPE_FOOD,
+    ENTITY_TYPE_OBSTACLE,
 } EntityType;
 
 typedef enum {
