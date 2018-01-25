@@ -119,6 +119,9 @@ typedef struct {
     KageState kage_state;
     CrapState crap_state;
 
+    int target_counter;
+    int food_counter;
+
     int pos_x;
 
     int n_frames;

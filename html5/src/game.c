@@ -114,9 +114,9 @@ int LoadObstacle(int world_slice, Entity *entities, int n_entities)
 int LoadFood(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[3] = {
-        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 1800, 600, ENTITY_TYPE_FOOD},
-        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, 600, ENTITY_TYPE_FOOD},
-        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 + 1800, 600, ENTITY_TYPE_FOOD}
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 1800, KAGE_DOWN_Y, ENTITY_TYPE_FOOD},
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, KAGE_DOWN_Y, ENTITY_TYPE_FOOD},
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 + 1800, KAGE_NEUTRAL_Y, ENTITY_TYPE_FOOD}
     };
     for(int i = 0; i < 3; i++) {
         int res = AddEntity(es[i], entities, n_entities);
@@ -298,6 +298,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                     int target_y = target->y - target_plane->offset_y;
                     if(abs(crap_entity->x - target_x) < 20 && abs(crap_entity->y - target_y) < 200) {
                         target->sprite++;
+                        game_state->target_counter++;
                         game_state->crap_state = CRAP_NONE;
                         crap_entity->type = ENTITY_TYPE_NULL;
                     }
@@ -313,6 +314,18 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(crap_entity->x < -2000) {
                 game_state->crap_state = CRAP_NONE;
                 crap_entity->type = ENTITY_TYPE_NULL;
+            }
+        }
+
+        for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
+            Entity* food = &food_plane->entities[i];
+            if(food->type == ENTITY_TYPE_FOOD) {
+                int food_x = food->x - food_plane->offset_x;
+                int food_y = food->y - food_plane->offset_y;
+                if(abs(player_entity->x - food_x) < 50 && abs(player_entity->y - food_y) < 20) {
+                    game_state->food_counter++;
+                    food->type = ENTITY_TYPE_NULL;
+                }
             }
         }
     }
