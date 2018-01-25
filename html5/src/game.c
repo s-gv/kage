@@ -239,7 +239,19 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         
         if(game_state->crap_state == CRAP_FALLING) {
             crap_entity->y -= CRAP_SPEED_Y;
-            // TODO: Check for collision with targets
+            // Check if crap collided with targets
+            for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
+                Entity* target = &target_plane->entities[i];
+                if(target->type == ENTITY_TYPE_TARGET) {
+                    int target_x = target->x - target_plane->offset_x;
+                    int target_y = target->y - target_plane->offset_y;
+                    if(abs(crap_entity->x - target_x) < 20 && abs(crap_entity->y - target_y) < 200) {
+                        target->sprite++;
+                        game_state->crap_state = CRAP_NONE;
+                        crap_entity->type = ENTITY_TYPE_NULL;
+                    }
+                }
+            }
             if(crap_entity->y <= CRAP_MIN_Y) {
                 game_state->crap_state = CRAP_FALLEN;
             }

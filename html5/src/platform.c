@@ -59,7 +59,7 @@ void loop()
     double dt = (t - last_frame_time);
     last_frame_time = t;
     
-    if(t < 12000) LOGI("Frame time: %.2f\n", dt);
+    // if(t < 12000) LOGI("Frame time: %.2f\n", dt);
 
     int n_ticks = 0;
     while(dt > GAME_TICK_MS/2) {
