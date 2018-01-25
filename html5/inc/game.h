@@ -45,9 +45,9 @@ typedef struct {
 typedef enum {
     PLAY_STATE_START_SPLASH,
     PLAY_STATE_START_PLAY,
+    PLAY_STATE_PAUSE,
     PLAY_STATE_PLAYING,
     PLAY_STATE_STOP_SPLASH,
-    PLAY_STATE_PAUSE,
     PLAY_STATE_DYING,
 } PlayState;
 

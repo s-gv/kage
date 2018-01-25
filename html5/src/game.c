@@ -158,7 +158,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }
-    if(game_state->play_state == PLAY_STATE_START_PLAY) {
+    else if(game_state->play_state == PLAY_STATE_START_PLAY) {
         // Horizontally scrolling world looks like this:
         //
         //            Slice 0          Slice 1          Slice 2
@@ -230,7 +230,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
-    if(game_state->play_state == PLAY_STATE_PLAYING) {
+    else if(game_state->play_state == PLAY_STATE_PLAYING) {
         EntityPlane* farbg_plane = &game_state->planes[0];
         EntityPlane* bg_plane = &game_state->planes[1];
         EntityPlane* target_plane = &game_state->planes[2];
@@ -356,11 +356,20 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 }
             }
         }
+
+        if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
+            game_state->play_state = PLAY_STATE_PAUSE;
+        }
     }
-    if(game_state->play_state == PLAY_STATE_DYING) {
+    else if(game_state->play_state == PLAY_STATE_PAUSE) {
+        if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
+            game_state->play_state = PLAY_STATE_PLAYING;
+        }
+    }
+    else if(game_state->play_state == PLAY_STATE_DYING) {
         game_state->play_state = PLAY_STATE_STOP_SPLASH;
     }
-    if(game_state->play_state == PLAY_STATE_STOP_SPLASH) {
+    else if(game_state->play_state == PLAY_STATE_STOP_SPLASH) {
         EntityPlane* splash_plane = &game_state->planes[0];
         splash_plane->gl_tex = game_state->gl_splash_tex;
         splash_plane->offset_x = 0;
@@ -373,6 +382,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }
+
     game_state->n_frames++;
 }
 

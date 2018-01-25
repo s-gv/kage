@@ -18,8 +18,8 @@ int width, height;
 GLFWwindow* window;
 
 GameState *game_state;
-double last_frame_time, acc;
-double last_tick;
+double last_frame_time;
+GameInputEventType last_active_event;
 
 void loop()
 {
@@ -27,20 +27,16 @@ void loop()
     float x = 0, y = 0;
 
     glfwPollEvents();
-    if((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ||
-        (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)) {
+    if((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)) {
         event_type = GAME_INPUT_EVENT_SWIPE_UP;
     }
-    if((glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ||
-         (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)) {
+    if((glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)) {
         event_type = GAME_INPUT_EVENT_SWIPE_DOWN;
     }
-    if((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ||
-         (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)) {
+    if((glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)) {
         event_type = GAME_INPUT_EVENT_SWIPE_LEFT;
     }
-    if((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ||
-         (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)) {
+    if((glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)) {
         event_type = GAME_INPUT_EVENT_SWIPE_RIGHT;
     }
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -54,6 +50,10 @@ void loop()
         y = (float) (yd/height);
     }
     GameInput game_input = {event_type, x, y};
+    if(last_active_event != GAME_INPUT_EVENT_NULL && last_active_event == game_input.event_type) {
+        game_input.event_type = GAME_INPUT_EVENT_NULL;
+    }
+    last_active_event = event_type;
 
     double t = emscripten_get_now();
     double dt = (t - last_frame_time);
