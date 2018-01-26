@@ -4,9 +4,12 @@ import android.content.res.AssetManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Environment;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -25,6 +28,22 @@ import javax.microedition.khronos.opengles.GL10;
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
     private GLSurfaceView mGLView;
     byte[] mGameState;
+
+    int mEvent;
+    float mEventX, mEventY;
+
+    boolean mEventDone;
+    float mXStart, mYStart;
+
+    public class GameInputEventType {
+        public static final int NULL = 0;
+        public static final int SWIPE_UP = 1;
+        public static final int SWIPE_DOWN = 2;
+        public static final int SWIPE_LEFT = 3;
+        public static final int SWIPE_RIGHT = 4;
+        public static final int PAUSE = 5;
+        public static final int PRESS = 6;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +73,57 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = MotionEventCompat.getActionMasked(event);
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN):
+                mXStart = event.getX();
+                mYStart = event.getY();
+                Display display = getWindowManager().getDefaultDisplay();
+                float touchX = mXStart / display.getWidth();
+                float touchY = mYStart / display.getHeight();
+                mEvent = GameInputEventType.PRESS;
+                mEventX = touchX;
+                mEventY = touchY;
+                mEventDone = false;
+                return true;
+            case (MotionEvent.ACTION_MOVE):
+                if(!mEventDone) {
+                    float x = event.getX();
+                    float y = event.getY();
+                    double dx = x - mXStart;
+                    double dy = y - mYStart;
+
+                    double d = Math.pow(dx*dx + dy*dy, 0.5);
+                    if (d > 5) {
+                        if(Math.abs(dx) > Math.abs(dy)) {
+                            // left or right swipe
+                            if (dx > 0) {
+                                mEvent = GameInputEventType.SWIPE_RIGHT;
+                            }
+                            else {
+                                mEvent = GameInputEventType.SWIPE_LEFT;
+                            }
+                        }
+                        else {
+                            // up or down swipe
+                            if (dy > 0) {
+                                mEvent = GameInputEventType.SWIPE_DOWN;
+                            }
+                            else {
+                                mEvent = GameInputEventType.SWIPE_UP;
+                            }
+                        }
+                        mEventX = 0; mEventY = 0;
+                        mEventDone = true;
+                    }
+                }
+                return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         final int res = GameWrapper.gameInit(mGameState);
@@ -75,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        GameWrapper.gameLoop(mGameState, 0, 0, 0);
+        int ev = mEvent;
+        mEvent = GameInputEventType.NULL;
+        GameWrapper.gameLoop(mGameState, ev, mEventX, mEventY);
     }
 
     private void extractAssets() {

@@ -14,9 +14,7 @@
 
 GameState* game_state;
 char dataDirPath[250];
-int width, height;
 JNIEnv *g_env;
-int ch;
 
 JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setDataDir
     (JNIEnv *env, jclass this, jstring dataDir_)
@@ -31,7 +29,6 @@ JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_gameInit
 {
     g_env = env;
     GameState* game_state = (GameState*)(*env)->GetByteArrayElements(env, jGameState, NULL);
-    //game_state = (GameState*) calloc(1, sizeof(GameState));
     int res = GameInit(game_state);
     (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
     return res;
@@ -66,10 +63,10 @@ JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
         event_type = GAME_INPUT_EVENT_SWIPE_RIGHT;
     }
     if(event_idx == 5) {
-        event_type = GAME_INPUT_EVENT_PRESS;
+        event_type = GAME_INPUT_EVENT_PAUSE;
     }
     if(event_idx == 6) {
-        event_type = GAME_INPUT_EVENT_PAUSE;
+        event_type = GAME_INPUT_EVENT_PRESS;
     }
     GameInput game_input = {event_type, x, y};
     GameStateUpdate(game_state, game_input);
