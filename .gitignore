@@ -3,3 +3,5 @@
 *.tmp*
 bin
 .vscode
+android/libs
+android/obj
