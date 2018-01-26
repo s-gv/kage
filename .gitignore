@@ -2,6 +2,8 @@
 *.swp*
 *.tmp*
 bin
+libs
+obj
+build
 .vscode
-android/libs
-android/obj
+
