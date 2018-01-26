@@ -12,78 +12,46 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GameState game_state;
+GameState* game_state;
 char dataDirPath[250];
 int width, height;
 JNIEnv *g_env;
-jclass g_clazz;
-
+int ch;
 
 JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setDataDir
-        (JNIEnv *env, jclass this, jstring dataDir_)
+    (JNIEnv *env, jclass this, jstring dataDir_)
 {
     g_env = env;
     const char *dataDir = (*env)->GetStringUTFChars(env, dataDir_, 0);
     strcpy(dataDirPath, dataDir);
 }
 
-
-
-JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_getGameStateSize
-        (JNIEnv *env, jclass this)
+JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_gameInit
+    (JNIEnv *env, jclass this, jbyteArray jGameState)
 {
     g_env = env;
-    return sizeof(GameState);
-}
-
-JNIEXPORT jbyteArray JNICALL Java_com_sagargv_kagegame_GameWrapper_getGameState
-        (JNIEnv *env, jclass this)
-{
-    g_env = env;
-    jbyteArray jbuf = (*env)->NewByteArray(env, sizeof(GameState));
-    (*env)->SetByteArrayRegion(env, jbuf, 0, sizeof(GameState), (const jbyte *)&game_state);
-    return jbuf;
-}
-
-JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setGameState
-        (JNIEnv *env, jclass this, jbyteArray jGameState)
-{
-    g_env = env;
-    jbyte* jbuffer = (*env)->GetByteArrayElements(env, jGameState, NULL);
-    unsigned char* game_state_ptr = (unsigned char*) &game_state;
-    int i;
-    for(i = 0; i < sizeof(GameState); i++) {
-        game_state_ptr[i] = jbuffer[i];
-    }
-    (*env)->ReleaseByteArrayElements(env, jGameState, jbuffer, JNI_ABORT);
-}
-
-JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_audioInit
-        (JNIEnv *env, jclass this)
-{
-    g_env = env;
-    return AudioInit(&game_state);
-}
-
-JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_graphicsInit
-        (JNIEnv *env, jclass this)
-{
-    g_env = env;
-    return GraphicsInit(&game_state);
+    GameState* game_state = (GameState*)(*env)->GetByteArrayElements(env, jGameState, NULL);
+    //game_state = (GameState*) calloc(1, sizeof(GameState));
+    int res = GameInit(game_state);
+    (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
+    return res;
 }
 
 JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameReset
-        (JNIEnv *env, jclass this)
+    (JNIEnv *env, jclass this, jbyteArray jGameState)
 {
     g_env = env;
-    GameReset(&game_state);
+    GameState* game_state = (GameState*)(*env)->GetByteArrayElements(env, jGameState, NULL);
+    GameReset(game_state);
+    (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
 }
 
 
 JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
-(JNIEnv *env, jclass this, jint w, jint h, jint event_idx, jfloat x, jfloat y)
+    (JNIEnv *env, jclass this, jbyteArray jGameState, jint event_idx, jfloat x, jfloat y)
 {
     g_env = env;
+    GameState* game_state = (GameState*)(*env)->GetByteArrayElements(env, jGameState, NULL);
     GameInputEventType event_type = GAME_INPUT_EVENT_NULL;
     if(event_idx == 1) {
         event_type = GAME_INPUT_EVENT_SWIPE_UP;
@@ -104,8 +72,9 @@ JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
         event_type = GAME_INPUT_EVENT_PAUSE;
     }
     GameInput game_input = {event_type, x, y};
-    GameStateUpdate(&game_state, game_input);
-    GameRender(&game_state);
+    GameStateUpdate(game_state, game_input);
+    GameRender(game_state);
+    (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
 }
 
 unsigned char* PlatformImgLoad(const char* fileName, int* width, int* height)

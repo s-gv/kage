@@ -11,13 +11,7 @@ public class GameWrapper {
 
     public static native void setDataDir(String dataDir);
 
-    public static native int getGameStateSize();
-    public static native byte[] getGameState();
-    public static native void setGameState(byte[] gameState);
-
-    public static native int audioInit();
-    public static native int graphicsInit();
-
-    public static native void gameReset();
-    public static native void gameLoop(int width, int height, int eventType, float x, float y);
+    public static native int gameInit(byte[] gameState);
+    public static native void gameReset(byte[] gameState);
+    public static native void gameLoop(byte[] gameState, int eventType, float x, float y);
 }

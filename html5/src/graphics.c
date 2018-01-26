@@ -155,41 +155,43 @@ void GraphicsLoop(GameState* game_state)
         0.0f, 0.0f, 0.0f, 1.0f,
     };
     mvp_matrix[0] = 1.0f / game_state->aspect_ratio;
-
+    
     for(int i = 0; i < game_state->n_planes; i++) {
         EntityPlane *plane = &game_state->planes[i];
         int offset_x = plane->offset_x;
         int offset_y = plane->offset_y;
         float zoom = plane->zoom;
-
+        
         for(int j = 0; j < MAX_ENTITIES_PER_PLANE; j++) {
             Entity *entity = &plane->entities[j];
-            Sprite *sprite = entity->sprite;
 
-            float s0 = sprite->s0; float t0 = sprite->t0;
-            float s1 = sprite->s1; float t1 = sprite->t1;
-            float x0 = (entity->x-offset_x)*zoom - sprite->w/2; float y0 = (entity->y-offset_y)*zoom + sprite->h/2;
-            float x1 = (entity->x-offset_x)*zoom + sprite->w/2; float y1 = (entity->y-offset_y)*zoom - sprite->h/2;
-
-            if(entity->type == ENTITY_TYPE_NULL) {
-                x0 = -10.0f; x1 = -10.0f; y0 = -10.0f; y1 = -10.0f;
+            float x0 = -10, y0 = -10, x1 = -10, y1 = -10;
+            float s0 = 0, t0 = 0, s1 = 0, t1 = 0;
+            
+            if(entity->type != ENTITY_TYPE_NULL) {
+                Sprite *sprite = entity->sprite;
+            
+                s0 = sprite->s0; t0 = sprite->t0;
+                s1 = sprite->s1; t1 = sprite->t1;
+                x0 = (entity->x-offset_x)*zoom - sprite->w/2; y0 = (entity->y-offset_y)*zoom + sprite->h/2;
+                x1 = (entity->x-offset_x)*zoom + sprite->w/2; y1 = (entity->y-offset_y)*zoom - sprite->h/2;
             }
-
+            
             float *qverts = &game_state->sprite_verts[24*j];
 
             // Triangle 0 of the quad
             qverts[0] = x0; qverts[1] = y0; qverts[2] = s0; qverts[3] = t0;
             qverts[4] = x1; qverts[5] = y1; qverts[6] = s1; qverts[7] = t1;
             qverts[8] = x0; qverts[9] = y1; qverts[10] = s0; qverts[11] = t1;
-
+            
             // Triangle 1 of the quad
             qverts[12] = x0; qverts[13] = y0; qverts[14] = s0; qverts[15] = t0;
             qverts[16] = x1; qverts[17] = y0; qverts[18] = s1; qverts[19] = t0;
             qverts[20] = x1; qverts[21] = y1; qverts[22] = s1; qverts[23] = t1;
         }
-
+        
         glUseProgram(game_state->quad_shader.gl_program); // Render quads
-
+        
         glBindBuffer(GL_ARRAY_BUFFER, game_state->gl_vbos[i]);
         glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), NULL, GL_STREAM_DRAW);
         glBufferData(GL_ARRAY_BUFFER, 3*2*MAX_ENTITIES_PER_PLANE*4*sizeof(float), game_state->sprite_verts, GL_STREAM_DRAW);
@@ -210,5 +212,5 @@ void GraphicsLoop(GameState* game_state)
         glDrawArrays(GL_TRIANGLES, 0, 6 * MAX_ENTITIES_PER_PLANE);
     }
     
-    //glChk();
+    // glChk();
 }
