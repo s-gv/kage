@@ -19,7 +19,7 @@ JNIEnv *g_env;
 jclass g_clazz;
 
 
-JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_setDataDir
+JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setDataDir
         (JNIEnv *env, jclass this, jstring dataDir_)
 {
     g_env = env;
@@ -29,14 +29,14 @@ JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_setDataDir
 
 
 
-JNIEXPORT jint JNICALL Java_com_sagargv_kage_GameWrapper_getGameStateSize
+JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_getGameStateSize
         (JNIEnv *env, jclass this)
 {
     g_env = env;
     return sizeof(GameState);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_com_sagargv_kage_GameWrapper_getGameState
+JNIEXPORT jbyteArray JNICALL Java_com_sagargv_kagegame_GameWrapper_getGameState
         (JNIEnv *env, jclass this)
 {
     g_env = env;
@@ -45,7 +45,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_sagargv_kage_GameWrapper_getGameState
     return jbuf;
 }
 
-JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_setGameState
+JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setGameState
         (JNIEnv *env, jclass this, jbyteArray jGameState)
 {
     g_env = env;
@@ -58,21 +58,21 @@ JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_setGameState
     (*env)->ReleaseByteArrayElements(env, jGameState, jbuffer, JNI_ABORT);
 }
 
-JNIEXPORT jint JNICALL Java_com_sagargv_kage_GameWrapper_audioInit
+JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_audioInit
         (JNIEnv *env, jclass this)
 {
     g_env = env;
     return AudioInit(&game_state);
 }
 
-JNIEXPORT jint JNICALL Java_com_sagargv_kage_GameWrapper_graphicsInit
+JNIEXPORT jint JNICALL Java_com_sagargv_kagegame_GameWrapper_graphicsInit
         (JNIEnv *env, jclass this)
 {
     g_env = env;
     return GraphicsInit(&game_state);
 }
 
-JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_gameReset
+JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameReset
         (JNIEnv *env, jclass this)
 {
     g_env = env;
@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_gameReset
 }
 
 
-JNIEXPORT void JNICALL Java_com_sagargv_kage_GameWrapper_gameLoop
+JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
 (JNIEnv *env, jclass this, jint w, jint h, jint event_idx, jfloat x, jfloat y)
 {
     g_env = env;
