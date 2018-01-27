@@ -4,11 +4,13 @@ import android.content.res.AssetManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Environment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,15 +27,15 @@ import java.io.OutputStream;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer, GestureDetector.OnGestureListener {
     private GLSurfaceView mGLView;
+    private GestureDetectorCompat mDetector;
+
     byte[] mGameState;
 
     int mEvent;
     float mEventX, mEventY;
-
-    boolean mEventDone;
-    float mXStart, mYStart;
+    private long mLastEventTime;
 
     public class GameInputEventType {
         public static final int NULL = 0;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mGLView.setRenderer(this);
         setContentView(mGLView);
 
+        mDetector = new GestureDetectorCompat(this, this);
+
         File dataDir = getExternalFilesDir(null);
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && dataDir != null) {
             GameWrapper.setDataDir(dataDir.getAbsolutePath());
@@ -74,53 +78,51 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int action = MotionEventCompat.getActionMasked(event);
-        switch(action) {
-            case (MotionEvent.ACTION_DOWN):
-                mXStart = event.getX();
-                mYStart = event.getY();
-                Display display = getWindowManager().getDefaultDisplay();
-                float touchX = mXStart / display.getWidth();
-                float touchY = mYStart / display.getHeight();
-                mEvent = GameInputEventType.PRESS;
-                mEventX = touchX;
-                mEventY = touchY;
-                mEventDone = false;
-                return true;
-            case (MotionEvent.ACTION_MOVE):
-                if(!mEventDone) {
-                    float x = event.getX();
-                    float y = event.getY();
-                    double dx = x - mXStart;
-                    double dy = y - mYStart;
-
-                    double d = Math.pow(dx*dx + dy*dy, 0.5);
-                    if (d > 5) {
-                        if(Math.abs(dx) > Math.abs(dy)) {
-                            // left or right swipe
-                            if (dx > 0) {
-                                mEvent = GameInputEventType.SWIPE_RIGHT;
-                            }
-                            else {
-                                mEvent = GameInputEventType.SWIPE_LEFT;
-                            }
-                        }
-                        else {
-                            // up or down swipe
-                            if (dy > 0) {
-                                mEvent = GameInputEventType.SWIPE_DOWN;
-                            }
-                            else {
-                                mEvent = GameInputEventType.SWIPE_UP;
-                            }
-                        }
-                        mEventX = 0; mEventY = 0;
-                        mEventDone = true;
-                    }
-                }
-                return true;
-        }
+        mDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if(e1.getEventTime() != mLastEventTime) {
+            if(Math.abs(distanceX) > 5 || Math.abs(distanceY) > 5) {
+                if(Math.abs(distanceX) > Math.abs(distanceY)) {
+                    mEvent = (distanceX < 0) ? GameInputEventType.SWIPE_RIGHT : GameInputEventType.SWIPE_LEFT;
+                }
+                else {
+                    mEvent = (distanceY < 0) ? GameInputEventType.SWIPE_DOWN : GameInputEventType.SWIPE_UP;
+                }
+                mEventX = 0;
+                mEventY = 0;
+                mLastEventTime = e1.getEventTime();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
     }
 
     @Override
