@@ -28,21 +28,19 @@ int wavBufferData(char* file_name) {
     for(i = 0; i < n_samples; i++) {
         samples[i] = *((int16_t*)(&data[44+2*i])) / 32768.0f;
     }
-    // buffer_idx = alBufferData(1, 44100, samples, n_samples);
+    buffer_idx = alBufferData(1, 44100, samples, n_samples);
     fclose(fp);
     return buffer_idx;
 }
 
 int AudioInit(GameState* game_state)
 {
-    /*
     if(alInit() != 0) {
         LOGE("Audio Init failed\n");
         return 1;
     }
-    */
     game_state->al_background_buffer = wavBufferData("sky_high.wav");
-    //game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
+    game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
     LOGI("Audio init done.\n");
     return 0;
 }
