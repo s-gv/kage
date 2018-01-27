@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "game.h"
 #include "platform.h"
@@ -12,6 +13,7 @@
 
 int GameInit(GameState* game_state)
 {
+    memset(game_state, 0, sizeof(GameState));
     if(GraphicsInit(game_state) != 0) {
         LOGE("Error in graphics init.\n");
         return -1;

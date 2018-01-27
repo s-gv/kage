@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <jni.h>
+#include <time.h>
 
 #include "platform.h"
 #include "game.h"
@@ -15,6 +16,20 @@
 GameState* game_state;
 char dataDirPath[250];
 JNIEnv *g_env;
+struct timespec last_frame_time;
+
+struct timespec diff(struct timespec start, struct timespec end)
+{
+	struct timespec temp;
+	if ((end.tv_nsec-start.tv_nsec)<0) {
+		temp.tv_sec = end.tv_sec-start.tv_sec-1;
+		temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+	} else {
+		temp.tv_sec = end.tv_sec-start.tv_sec;
+		temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+	}
+	return temp;
+}
 
 JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_setDataDir
     (JNIEnv *env, jclass this, jstring dataDir_)
@@ -68,8 +83,21 @@ JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
     if(event_idx == 6) {
         event_type = GAME_INPUT_EVENT_PRESS;
     }
-    GameInput game_input = {event_type, x, y};
-    GameStateUpdate(game_state, game_input);
+
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    struct timespec delta = diff(last_frame_time, now);
+    float dt = delta.tv_nsec / 1e6;
+    if(dt > GAME_TICK_MS/2) {
+        last_frame_time = now;
+    }
+    while(dt > GAME_TICK_MS/2) {
+        GameInput game_input = {event_type, x, y};
+        GameStateUpdate(game_state, game_input);
+        event_type = GAME_INPUT_EVENT_NULL; x = 0; y = 0;
+        dt -= GAME_TICK_MS;
+    }
+
     GameRender(game_state);
     (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
 }

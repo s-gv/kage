@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     int mEvent;
     float mEventX, mEventY;
     private long mLastEventTime;
+    private long mLastFrameTime;
 
     public class GameInputEventType {
         public static final int NULL = 0;
