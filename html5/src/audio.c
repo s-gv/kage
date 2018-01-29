@@ -40,7 +40,7 @@ int AudioInit(GameState* game_state)
         return 1;
     }
     game_state->al_background_buffer = wavBufferData("sky_high.wav");
-    game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
+    // game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
     LOGI("Audio init done.\n");
     return 0;
 }

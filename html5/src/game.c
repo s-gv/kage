@@ -303,7 +303,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         if(game_state->crap_state == CRAP_NONE) {
             if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_LEFT) {
                 game_state->crap_state = CRAP_FALLING;
-                *crap_entity = (const Entity){&g_crap_sprites[0], player_entity->x, player_entity->y, ENTITY_TYPE_CRAP};
+                *crap_entity = (const Entity){&g_crap_sprites[rand() % 3], player_entity->x, player_entity->y, ENTITY_TYPE_CRAP};
             }
         }
         
@@ -353,8 +353,9 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(obstacle->type == ENTITY_TYPE_OBSTACLE) {
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
-                if(abs(player_entity->x - obstacle_x) < 250 && abs(player_entity->y - obstacle_y) < 20) {
+                if(abs(player_entity->x - obstacle_x) < 300 && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
+                    game_state->player_kf_idx = 0;
                 }
             }
         }
@@ -371,7 +372,22 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
     }
     else if(game_state->play_state == PLAY_STATE_DYING) {
-        game_state->play_state = PLAY_STATE_STOP_SPLASH;
+        EntityPlane* player_plane = &game_state->planes[3];
+        Entity* player_entity = &player_plane->entities[0];
+
+        player_entity->sprite = g_kage_dying_anim.key_frames[game_state->player_kf_idx].sprite;
+        game_state->player_kf_duration++;
+        if(game_state->player_kf_duration >= g_kage_dying_anim.key_frames[game_state->player_kf_idx].duration) {
+            game_state->player_kf_idx++;
+            game_state->player_kf_duration = 0;
+            if(game_state->player_kf_idx >= g_kage_dying_anim.n_keyframes) {
+                game_state->player_kf_idx = 0;
+            }
+        }
+        player_entity->y -= 20;
+        if(player_entity->y < -800) {
+            game_state->play_state = PLAY_STATE_STOP_SPLASH;
+        }
     }
     else if(game_state->play_state == PLAY_STATE_STOP_SPLASH) {
         EntityPlane* splash_plane = &game_state->planes[0];
