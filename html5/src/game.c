@@ -225,10 +225,24 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         LoadFood(0, food_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFood(1, food_plane->entities, MAX_ENTITIES_PER_PLANE);
 
+        EntityPlane* darken_plane = &game_state->planes[6];
+        darken_plane->gl_tex = game_state->gl_kage_tex;
+        darken_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        darken_plane->offset_x = 0;
+        darken_plane->offset_y = 0;
+        ClearEntities(darken_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        EntityPlane* buttons_plane = &game_state->planes[7];
+        buttons_plane->gl_tex = game_state->gl_kage_tex;
+        buttons_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        buttons_plane->offset_x = 0;
+        buttons_plane->offset_y = 0;
+        ClearEntities(buttons_plane->entities, MAX_ENTITIES_PER_PLANE);
+
         game_state->food_counter = 0;
         game_state->target_counter = 0;
 
-        game_state->n_planes = 6;
+        game_state->n_planes = 8;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
@@ -239,6 +253,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* player_plane = &game_state->planes[3];
         EntityPlane* obstacle_plane = &game_state->planes[4];
         EntityPlane* food_plane = &game_state->planes[5];
+        EntityPlane* darken_plane = &game_state->planes[6];
+        EntityPlane* buttons_plane = &game_state->planes[7];
 
         if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
@@ -268,6 +284,9 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         target_plane->offset_x += BG_SPEED;
         obstacle_plane->offset_x += BG_SPEED;
         food_plane->offset_x += BG_SPEED;
+
+        darken_plane->entities[0] = (const Entity){NULL, 0, 0, ENTITY_TYPE_NULL};
+        buttons_plane->entities[0] = (const Entity){&g_pause[0], 1725, 925, ENTITY_TYPE_BUTTON};
         
         if(game_state->kage_state == KAGE_MOVING_STRAIGHT) {
             if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_UP) {
@@ -366,6 +385,12 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
     }
     else if(game_state->play_state == PLAY_STATE_PAUSE) {
+        EntityPlane* darken_plane = &game_state->planes[6];
+        EntityPlane* buttons_plane = &game_state->planes[7];
+
+        darken_plane->entities[0] = (const Entity){&g_darken[0], 0, 0, ENTITY_TYPE_SPLASH};
+        buttons_plane->entities[0] = (const Entity){&g_play[0], 0, 0, ENTITY_TYPE_BUTTON};
+
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_PLAYING;
             alResume();

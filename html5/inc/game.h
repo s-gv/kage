@@ -61,6 +61,7 @@ typedef enum {
     ENTITY_TYPE_TARGET,
     ENTITY_TYPE_FOOD,
     ENTITY_TYPE_OBSTACLE,
+    ENTITY_TYPE_BUTTON,
 } EntityType;
 
 typedef enum {

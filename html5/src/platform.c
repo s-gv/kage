@@ -48,6 +48,11 @@ void loop()
         glfwGetCursorPos(window, &xd, &yd);
         x = (float) (xd/width);
         y = (float) (yd/height);
+        if(x > 0.9f && y < 0.1f) {
+            event_type = GAME_INPUT_EVENT_PAUSE;
+            x = 0;
+            y = 0;
+        }
     }
     GameInput game_input = {event_type, x, y};
     if(last_active_event != GAME_INPUT_EVENT_NULL && last_active_event == game_input.event_type) {
