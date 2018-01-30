@@ -83,7 +83,7 @@ JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
     if(event_idx == 6) {
         event_type = GAME_INPUT_EVENT_PRESS;
     }
-
+    /*
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     struct timespec delta = diff(last_frame_time, now);
@@ -92,12 +92,12 @@ JNIEXPORT void JNICALL Java_com_sagargv_kagegame_GameWrapper_gameLoop
         last_frame_time = now;
     }
     while(dt > GAME_TICK_MS/2) {
-        GameInput game_input = {event_type, x, y};
-        GameStateUpdate(game_state, game_input);
         event_type = GAME_INPUT_EVENT_NULL; x = 0; y = 0;
         dt -= GAME_TICK_MS;
     }
-
+    */
+    GameInput game_input = {event_type, x, y};
+    GameStateUpdate(game_state, game_input);
     GameRender(game_state);
     (*env)->ReleaseByteArrayElements(env, jGameState, (jbyte*)game_state, JNI_ABORT);
 }

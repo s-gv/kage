@@ -19,6 +19,7 @@ GLFWwindow* window;
 
 GameState *game_state;
 double last_frame_time;
+double dts[4];
 GameInputEventType last_active_event;
 
 void loop()
@@ -59,23 +60,13 @@ void loop()
         game_input.event_type = GAME_INPUT_EVENT_NULL;
     }
     last_active_event = event_type;
-
+    /*
     double t = emscripten_get_now();
     double dt = (t - last_frame_time);
-    if(dt > GAME_TICK_MS/2)
-        last_frame_time = t;
-    
-    // if(t < 12000) LOGI("Frame time: %.2f\n", dt);
+    last_frame_time = t;
+    */
 
-    int n_ticks = 0;
-    while(dt > GAME_TICK_MS/2) {
-        GameStateUpdate(game_state, game_input);
-        n_ticks++;
-        if(n_ticks > 3) {
-            break;
-        }
-        dt -= GAME_TICK_MS;
-    }
+    GameStateUpdate(game_state, game_input);
     GameRender(game_state);
     glfwSwapBuffers(window);
 }
