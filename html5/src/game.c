@@ -145,6 +145,20 @@ void ClearOldEntities(Entity *entities, int n_entities, int world_x)
     }
 }
 
+void WriteInt(Entity *entities, int n_entities, int x, int y, int spacing, Sprite *num_sprites, int val)
+{
+    int i = 0;
+    do {
+        int v = (val % 10);
+        val = val / 10;
+        entities[i] = (const Entity){&num_sprites[v], x - spacing*i, y, ENTITY_TYPE_TEXT};
+        i++;
+        if(i >= n_entities) {
+            break;
+        }
+    } while(val > 0);
+}
+
 void GameStateUpdate(GameState* game_state, GameInput game_input)
 {
     if(game_state->play_state == PLAY_STATE_START_SPLASH) {
@@ -225,14 +239,21 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         LoadFood(0, food_plane->entities, MAX_ENTITIES_PER_PLANE);
         LoadFood(1, food_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        EntityPlane* darken_plane = &game_state->planes[6];
+        EntityPlane* score_plane = &game_state->planes[6];
+        score_plane->gl_tex = game_state->gl_kage_tex;
+        score_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        score_plane->offset_x = 0;
+        score_plane->offset_y = 0;
+        ClearEntities(score_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        EntityPlane* darken_plane = &game_state->planes[7];
         darken_plane->gl_tex = game_state->gl_kage_tex;
         darken_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
         darken_plane->offset_x = 0;
         darken_plane->offset_y = 0;
         ClearEntities(darken_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        EntityPlane* buttons_plane = &game_state->planes[7];
+        EntityPlane* buttons_plane = &game_state->planes[8];
         buttons_plane->gl_tex = game_state->gl_kage_tex;
         buttons_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
         buttons_plane->offset_x = 0;
@@ -242,7 +263,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         game_state->food_counter = 0;
         game_state->target_counter = 0;
 
-        game_state->n_planes = 8;
+        game_state->n_planes = 9;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
@@ -253,8 +274,9 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         EntityPlane* player_plane = &game_state->planes[3];
         EntityPlane* obstacle_plane = &game_state->planes[4];
         EntityPlane* food_plane = &game_state->planes[5];
-        EntityPlane* darken_plane = &game_state->planes[6];
-        EntityPlane* buttons_plane = &game_state->planes[7];
+        EntityPlane* score_plane = &game_state->planes[6];
+        EntityPlane* darken_plane = &game_state->planes[7];
+        EntityPlane* buttons_plane = &game_state->planes[8];
 
         if(((farbg_plane->offset_x+FARBG_SPEED) / WORLD_SLICE_WIDTH) > (farbg_plane->offset_x / WORLD_SLICE_WIDTH)) {
             ClearOldEntities(farbg_plane->entities, MAX_ENTITIES_PER_PLANE, farbg_plane->offset_x);
@@ -285,6 +307,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         obstacle_plane->offset_x += BG_SPEED;
         food_plane->offset_x += BG_SPEED;
 
+        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 1725, 725, 75, &g_nums[0], game_state->food_counter);
         darken_plane->entities[0] = (const Entity){NULL, 0, 0, ENTITY_TYPE_NULL};
         buttons_plane->entities[0] = (const Entity){&g_pause[0], 1725, 925, ENTITY_TYPE_BUTTON};
         
@@ -385,8 +408,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         }
     }
     else if(game_state->play_state == PLAY_STATE_PAUSE) {
-        EntityPlane* darken_plane = &game_state->planes[6];
-        EntityPlane* buttons_plane = &game_state->planes[7];
+        EntityPlane* darken_plane = &game_state->planes[7];
+        EntityPlane* buttons_plane = &game_state->planes[8];
 
         darken_plane->entities[0] = (const Entity){&g_darken[0], 0, 0, ENTITY_TYPE_SPLASH};
         buttons_plane->entities[0] = (const Entity){&g_play[0], 0, 0, ENTITY_TYPE_BUTTON};

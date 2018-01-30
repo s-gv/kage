@@ -38,6 +38,7 @@ extern Sprite g_kage_dying_sprites[8];
 extern Sprite g_darken[1];
 extern Sprite g_play[1];
 extern Sprite g_pause[1];
+extern Sprite g_nums[10];
 
 extern AnimSeq g_kage_anim;
 extern AnimSeq g_kage_dying_anim;
