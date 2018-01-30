@@ -29,6 +29,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer, GestureDetector.OnGestureListener {
     private GLSurfaceView mGLView;
+    int mWidth, mHeight;
     private GestureDetectorCompat mDetector;
 
     byte[] mGameState;
@@ -95,7 +96,18 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        return false;
+        float pctX = e.getX() / mWidth;
+        float pctY = e.getY() / mHeight;
+        if(pctX > 0.9 && pctY < 0.1) {
+            mEvent = GameInputEventType.PAUSE;
+        }
+        else {
+            mEvent = GameInputEventType.PRESS;
+        }
+        mEventX = 0;
+        mEventY = 0;
+        mLastEventTime = e.getEventTime();
+        return true;
     }
 
     @Override
@@ -149,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        mWidth = width;
+        mHeight = height;
         GLES20.glViewport(0, 0, width, height);
     }
 
