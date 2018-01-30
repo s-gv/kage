@@ -444,7 +444,23 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         splash_plane->offset_y = 0;
         splash_plane->entities[0] = (const Entity){&g_stop_splash_sprite, 0, 0, ENTITY_TYPE_SPLASH};
 
-        game_state->n_planes = 1;
+        EntityPlane* score_plane = &game_state->planes[1];
+        score_plane->gl_tex = game_state->gl_kage_tex;
+        score_plane->zoom = (1.0f/(WORLD_SLICE_WIDTH/4));
+        score_plane->offset_x = 0;
+        score_plane->offset_y = 0;
+        ClearEntities(score_plane->entities, MAX_ENTITIES_PER_PLANE);
+
+        int score = game_state->food_counter;
+        int n_digits = 0;
+        int tmp = score;
+        do {
+            tmp = tmp / 10;
+            n_digits++;
+        } while(tmp > 0);
+        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 100*(n_digits - 1), 0, 200, &g_big_nums[0], score);
+
+        game_state->n_planes = 2;
 
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_START_PLAY;
