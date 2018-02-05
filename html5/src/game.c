@@ -86,9 +86,9 @@ int LoadBg(int world_slice, Entity *entities, int n_entities)
 int LoadTarget(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[3] = {
-        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 - 1800, -800, ENTITY_TYPE_TARGET},
-        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 - 200, -800, ENTITY_TYPE_TARGET},
-        (const Entity){&g_target_sprites[2*(rand() % 4)], world_slice*4000 + 1800, -800, ENTITY_TYPE_TARGET}
+        (const Entity){&g_target_sprites[2*(rand() % N_ASSET_TARGETS)], world_slice*4000 - 1800, -800, ENTITY_TYPE_TARGET},
+        (const Entity){&g_target_sprites[2*(rand() % N_ASSET_TARGETS)], world_slice*4000 - 200, -800, ENTITY_TYPE_TARGET},
+        (const Entity){&g_target_sprites[2*(rand() % N_ASSET_TARGETS)], world_slice*4000 + 1800, -800, ENTITY_TYPE_TARGET}
     };
     for(int i = 0; i < 3; i++) {
         int res = AddEntity(es[i], entities, n_entities);
@@ -157,6 +157,11 @@ void WriteInt(Entity *entities, int n_entities, int x, int y, int spacing, Sprit
             break;
         }
     } while(val > 0);
+}
+
+int GetScore(GameState* game_state)
+{
+    return game_state->food_counter + 20*game_state->target_counter;
 }
 
 void GameStateUpdate(GameState* game_state, GameInput game_input)
@@ -307,7 +312,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         obstacle_plane->offset_x += BG_SPEED;
         food_plane->offset_x += BG_SPEED;
 
-        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 1725, 725, 75, &g_nums[0], game_state->food_counter);
+        int score = GetScore(game_state);
+        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 1725, 725, 75, &g_nums[0], score);
         darken_plane->entities[0] = (const Entity){NULL, 0, 0, ENTITY_TYPE_NULL};
         buttons_plane->entities[0] = (const Entity){&g_pause[0], 1725, 925, ENTITY_TYPE_BUTTON};
         
@@ -451,7 +457,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         score_plane->offset_y = 0;
         ClearEntities(score_plane->entities, MAX_ENTITIES_PER_PLANE);
 
-        int score = game_state->food_counter;
+        int score = GetScore(game_state);
         int n_digits = 0;
         int tmp = score;
         do {
