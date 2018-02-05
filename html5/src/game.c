@@ -458,7 +458,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             tmp = tmp / 10;
             n_digits++;
         } while(tmp > 0);
-        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 100*(n_digits - 1), 0, 200, &g_big_nums[0], score);
+        WriteInt(score_plane->entities, MAX_ENTITIES_PER_PLANE, 100*(n_digits - 1), 250, 200, &g_big_nums[0], score);
 
         game_state->n_planes = 2;
 
