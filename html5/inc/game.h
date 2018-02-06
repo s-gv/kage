@@ -65,6 +65,7 @@ typedef enum {
     ENTITY_TYPE_OBSTACLE,
     ENTITY_TYPE_BUTTON,
     ENTITY_TYPE_TEXT,
+    ENTITY_TYPE_ROAD,
 } EntityType;
 
 typedef enum {

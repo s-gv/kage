@@ -131,7 +131,8 @@ int LoadFood(int world_slice, Entity *entities, int n_entities)
 
 int LoadRoad(int world_slice, Entity *entities, int n_entities)
 {
-    return 0;
+    Entity e = (const Entity){&g_roads[0], world_slice*4000, -900, ENTITY_TYPE_ROAD};
+    return AddEntity(e, entities, n_entities);
 }
 
 void ClearEntities(Entity *entities, int n_entities)
@@ -321,10 +322,11 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             ClearOldEntities(food_plane->entities, MAX_ENTITIES_PER_PLANE, food_plane->offset_x);
             int next_world_slice = ((bg_plane->offset_x+speed) / WORLD_SLICE_WIDTH) + 1;
             int res1 = LoadBg(next_world_slice, bg_plane->entities, MAX_ENTITIES_PER_PLANE);
-            int res2 = LoadTarget(next_world_slice, target_plane->entities, MAX_ENTITIES_PER_PLANE);
-            int res3 = LoadObstacle(next_world_slice, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
-            int res4 = LoadFood(next_world_slice, food_plane->entities, MAX_ENTITIES_PER_PLANE);
-            if(res1 != 0 || res2 != 0 || res3 != 0 || res4 != 0) {
+            int res2 = LoadRoad(next_world_slice, road_plane->entities, MAX_ENTITIES_PER_PLANE);
+            int res3 = LoadTarget(next_world_slice, target_plane->entities, MAX_ENTITIES_PER_PLANE);
+            int res4 = LoadObstacle(next_world_slice, obstacle_plane->entities, MAX_ENTITIES_PER_PLANE);
+            int res5 = LoadFood(next_world_slice, food_plane->entities, MAX_ENTITIES_PER_PLANE);
+            if(res1 != 0 || res2 != 0 || res3 != 0 || res4 != 0 || res5 != 0) {
                 LOGE("Out of space for entities\n");
             }
         }
