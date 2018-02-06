@@ -134,6 +134,9 @@ typedef struct {
     int n_frames;
 
     int al_background_buffer;
+    int al_crow_buffer;
+    int al_poop_buffer;
+    int al_crunch_buffer;
     int al_background_source;
 } GameState;
 

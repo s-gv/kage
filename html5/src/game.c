@@ -380,6 +380,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         if(game_state->crap_state == CRAP_NONE) {
             if(game_input.event_type == GAME_INPUT_EVENT_SWIPE_LEFT) {
                 game_state->crap_state = CRAP_FALLING;
+                alPlay(game_state->al_poop_buffer, AL_PLAY_ONCE);
                 *crap_entity = (const Entity){&g_crap_sprites[rand() % 3], player_entity->x, player_entity->y, ENTITY_TYPE_CRAP};
             }
         }
@@ -420,6 +421,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 int food_y = food->y - food_plane->offset_y;
                 if(abs(player_entity->x - food_x) < 50 && abs(player_entity->y - food_y) < 20) {
                     game_state->food_counter++;
+                    alPlay(game_state->al_crunch_buffer, AL_PLAY_ONCE);
                     food->type = ENTITY_TYPE_NULL;
                 }
             }
@@ -435,11 +437,6 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                     game_state->player_kf_idx = 0;
                 }
             }
-        }
-
-        if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
-            game_state->play_state = PLAY_STATE_PAUSE;
-            alSuspend();
         }
     }
     else if(game_state->play_state == PLAY_STATE_PAUSE) {
@@ -500,6 +497,11 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
+    }    
+
+    if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
+        game_state->play_state = PLAY_STATE_PAUSE;
+        alSuspend();
     }
 
     game_state->n_frames++;
