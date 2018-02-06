@@ -15,7 +15,9 @@
 #define WORLD_SLICE_WIDTH 4000
 
 #define FARBG_SPEED 1
-#define BG_SPEED 10
+
+#define BG_SPEED0 8
+#define BG_SPEED1 40
 
 #define KAGE_X -1000
 #define KAGE_NEUTRAL_Y 400
