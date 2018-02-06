@@ -15,7 +15,10 @@
 #define WORLD_SLICE_WIDTH 4000
 
 #define FARBG_SPEED 1
-#define BG_SPEED 10
+
+#define BG_SPEED0 8
+#define BG_SPEED1 16
+#define BG_SPEED2 40
 
 #define KAGE_X -1000
 #define KAGE_NEUTRAL_Y 400
@@ -63,6 +66,7 @@ typedef enum {
     ENTITY_TYPE_OBSTACLE,
     ENTITY_TYPE_BUTTON,
     ENTITY_TYPE_TEXT,
+    ENTITY_TYPE_ROAD,
 } EntityType;
 
 typedef enum {
