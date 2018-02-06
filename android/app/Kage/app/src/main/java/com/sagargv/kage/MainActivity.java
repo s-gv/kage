@@ -16,6 +16,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.sagargv.kagegame.Al;
 import com.sagargv.kagegame.GameWrapper;
 
 import java.io.File;
@@ -142,6 +143,13 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     protected void onPause() {
         super.onPause();
         mEvent = GameInputEventType.PAUSE;
+        Al.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Al.onResume();
     }
 
     @Override

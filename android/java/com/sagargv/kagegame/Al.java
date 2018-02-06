@@ -38,6 +38,7 @@ public class Al {
         mAudioBuffers.add(audioBuffer);
         return mAudioBuffers.size()-1;
     }
+
     public static void playTrack(int trackID, int mode) {
         AudioBuffer audioBuffer = mAudioBuffers.get(trackID);
         if (audioBuffer != null) {
@@ -51,17 +52,22 @@ public class Al {
             audioTrack.play();
         }
     }
+
     public static void stopTrack(int trackID) {
         AudioBuffer audioBuffer = mAudioBuffers.get(trackID);
         if (audioBuffer != null) {
             audioBuffer.mAudioTrack.stop();
         }
     }
+
     public static void onPause() {
         for(AudioBuffer audioBuffer: mAudioBuffers) {
-            audioBuffer.mAudioTrack.pause();
+            if(audioBuffer.mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                audioBuffer.mAudioTrack.pause();
+            }
         }
     }
+
     public static void onResume() {
         for(AudioBuffer audioBuffer: mAudioBuffers) {
             if(audioBuffer.mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED) {

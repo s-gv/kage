@@ -438,6 +438,10 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 }
             }
         }
+
+        if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
+            game_state->play_state = PLAY_STATE_PAUSE;
+        }
     }
     else if(game_state->play_state == PLAY_STATE_PAUSE) {
         EntityPlane* darken_plane = &game_state->planes[8];
@@ -448,7 +452,6 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_PLAYING;
-            alResume();
         }
     }
     else if(game_state->play_state == PLAY_STATE_DYING) {
@@ -497,12 +500,9 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
-    }    
-
-    if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
-        game_state->play_state = PLAY_STATE_PAUSE;
-        alSuspend();
     }
+
+    
 
     game_state->n_frames++;
 }
