@@ -10,7 +10,10 @@ extern JNIEnv *g_env;
 
 int alInit()
 {
-    return 0;
+    jclass clazz = (*g_env)->FindClass(g_env, "com/sagargv/kagegame/Al");
+    jmethodID method_init = (*g_env)->GetStaticMethodID(g_env, clazz, "init", "()I");
+    int res = (*g_env)->CallStaticIntMethod(g_env, clazz, method_init);
+    return res;
 }
 
 int alBufferData(int n_channels, int sample_rate, float* data, int data_count)

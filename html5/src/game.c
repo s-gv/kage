@@ -105,9 +105,10 @@ int LoadObstacle(int world_slice, Entity *entities, int n_entities)
     Entity es[1] = {
         (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
     };
+    /*
     if(world_slice % 3 == 1) {
         es[0].type = ENTITY_TYPE_OBSTACLE_MOVING;
-    }
+    }*/
     for(int i = 0; i < 1; i++) {
         int res = AddEntity(es[i], entities, n_entities);
         if(res != 0) {
@@ -185,7 +186,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         game_state->n_planes = 1;
 
-        if(game_input.event_type != GAME_INPUT_EVENT_NULL || game_state->n_frames > 60) {
+        if((game_input.event_type != GAME_INPUT_EVENT_NULL && game_input.event_type != GAME_INPUT_EVENT_PAUSE)
+            || game_state->n_frames > 60) {
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }
@@ -464,7 +466,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         darken_plane->entities[0] = (const Entity){&g_darken[0], 0, 0, ENTITY_TYPE_SPLASH};
         buttons_plane->entities[0] = (const Entity){&g_play[0], 0, 0, ENTITY_TYPE_BUTTON};
 
-        if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
+        if(game_input.event_type != GAME_INPUT_EVENT_NULL && game_input.event_type != GAME_INPUT_EVENT_PAUSE) {
             game_state->play_state = PLAY_STATE_PLAYING;
             alResume();
         }
@@ -512,7 +514,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         game_state->n_planes = 2;
 
-        if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
+        if(game_input.event_type != GAME_INPUT_EVENT_NULL && game_input.event_type != GAME_INPUT_EVENT_PAUSE) {
             game_state->play_state = PLAY_STATE_START_PLAY;
         }
     }

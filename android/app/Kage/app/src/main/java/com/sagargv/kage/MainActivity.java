@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     byte[] mGameState;
 
+    boolean mIsAudioResumeNeeded;
     int mEvent;
     float mEventX, mEventY;
     private long mLastEventTime;
-    private long mLastFrameTime;
 
     public class GameInputEventType {
         public static final int NULL = 0;
@@ -142,14 +142,17 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
     @Override
     protected void onPause() {
         super.onPause();
-        mEvent = GameInputEventType.PAUSE;
+        mIsAudioResumeNeeded = !Al.isPaused();
         Al.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Al.onResume();
+        if(mIsAudioResumeNeeded) {
+            Al.onResume();
+        }
+        mEvent = GameInputEventType.PAUSE;
     }
 
     @Override

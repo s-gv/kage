@@ -15,10 +15,21 @@ public class Al {
         AudioTrack mAudioTrack;
         int nFrames;
     }
+    public static boolean mIsPaused = false;
     public static boolean isAudioInitialized = false;
     static ArrayList<AudioBuffer> mAudioBuffers = new ArrayList<AudioBuffer>();
     public static final int AL_PLAY_ONCE = 0;
     public static final int AL_PLAY_INFINITE = 1;
+
+    public static int init() {
+        isAudioInitialized = true;
+        for(AudioBuffer audioBuffer: mAudioBuffers) {
+            audioBuffer.mAudioTrack.stop();
+            audioBuffer.mAudioTrack.release();
+        }
+        mAudioBuffers = new ArrayList<AudioBuffer>();
+        return 0;
+    }
 
     public static int bufferTrack(float[] samples) {
         short data[] = new short[samples.length];
@@ -43,6 +54,9 @@ public class Al {
         AudioBuffer audioBuffer = mAudioBuffers.get(trackID);
         if (audioBuffer != null) {
             AudioTrack audioTrack = audioBuffer.mAudioTrack;
+            if(audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                audioTrack.stop();
+            }
             if (mode == AL_PLAY_INFINITE) {
                 int bufSize = audioBuffer.nFrames;
                 audioTrack.setLoopPoints(0, bufSize, -1);
@@ -60,7 +74,8 @@ public class Al {
         }
     }
 
-    public static void onPause() {
+    public static synchronized void onPause() {
+        mIsPaused = true;
         for(AudioBuffer audioBuffer: mAudioBuffers) {
             if(audioBuffer.mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
                 audioBuffer.mAudioTrack.pause();
@@ -68,11 +83,16 @@ public class Al {
         }
     }
 
-    public static void onResume() {
+    public static synchronized void onResume() {
+        mIsPaused = false;
         for(AudioBuffer audioBuffer: mAudioBuffers) {
             if(audioBuffer.mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED) {
                 audioBuffer.mAudioTrack.play();
             }
         }
+    }
+
+    public static synchronized boolean isPaused() {
+        return mIsPaused;
     }
 }
