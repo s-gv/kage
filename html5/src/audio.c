@@ -43,7 +43,7 @@ int AudioInit(GameState* game_state)
     game_state->al_crow_buffer = wavBufferData("crow.wav");
     game_state->al_poop_buffer = wavBufferData("poop.wav");
     game_state->al_crunch_buffer = wavBufferData("crunch.wav");
-    game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
+    // game_state->al_background_source = alPlay(game_state->al_background_buffer, AL_PLAY_INFINITE);
 
     LOGI("Audio init done.\n");
     return 0;

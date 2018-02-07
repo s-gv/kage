@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "game.h"
 #include "platform.h"
@@ -104,6 +105,9 @@ int LoadObstacle(int world_slice, Entity *entities, int n_entities)
     Entity es[1] = {
         (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
     };
+    if(world_slice % 3 == 1) {
+        es[0].type = ENTITY_TYPE_OBSTACLE_MOVING;
+    }
     for(int i = 0; i < 1; i++) {
         int res = AddEntity(es[i], entities, n_entities);
         if(res != 0) {
@@ -117,7 +121,7 @@ int LoadFood(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[3] = {
         (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 1800, KAGE_DOWN_Y, ENTITY_TYPE_FOOD},
-        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, KAGE_DOWN_Y, ENTITY_TYPE_FOOD},
+        (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, KAGE_DOWN_Y, ENTITY_TYPE_FOOD_MOVING},
         (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 + 1800, KAGE_NEUTRAL_Y, ENTITY_TYPE_FOOD}
     };
     for(int i = 0; i < 3; i++) {
@@ -167,7 +171,7 @@ void WriteInt(Entity *entities, int n_entities, int x, int y, int spacing, Sprit
 
 int GetScore(GameState *game_state)
 {
-    return game_state->food_counter + 20*game_state->target_counter;
+    return game_state->food_counter + 25*game_state->target_counter;
 }
 
 void GameStateUpdate(GameState* game_state, GameInput game_input)
@@ -284,6 +288,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
         game_state->target_counter = 0;
 
         game_state->n_planes = 10;
+        game_state->n_frames = 0;
 
         game_state->play_state = PLAY_STATE_PLAYING;
     }
@@ -416,7 +421,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
             Entity* food = &food_plane->entities[i];
-            if(food->type == ENTITY_TYPE_FOOD) {
+            if(food->type == ENTITY_TYPE_FOOD || food->type == ENTITY_TYPE_FOOD_MOVING) {
                 int food_x = food->x - food_plane->offset_x;
                 int food_y = food->y - food_plane->offset_y;
                 if(abs(player_entity->x - food_x) < 50 && abs(player_entity->y - food_y) < 20) {
@@ -425,17 +430,25 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                     food->type = ENTITY_TYPE_NULL;
                 }
             }
+            if(food->type == ENTITY_TYPE_FOOD_MOVING) {
+                // Jumble up the phase and frequency to prevent synced movements of diffierent entities
+                food->y = KAGE_NEUTRAL_Y + (KAGE_UP_Y - KAGE_NEUTRAL_Y) * sin(game_state->n_frames/(i % 4 + 25.0f) + 2*i);
+            }
         }
 
         for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
             Entity* obstacle = &obstacle_plane->entities[i];
-            if(obstacle->type == ENTITY_TYPE_OBSTACLE) {
+            if(obstacle->type == ENTITY_TYPE_OBSTACLE || obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
                 if(abs(player_entity->x - obstacle_x) < 300 && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
                     game_state->player_kf_idx = 0;
                 }
+            }
+            if(obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
+                // Jumble up the phase and frequency to prevent synced movements of diffierent entities
+                obstacle->y = KAGE_NEUTRAL_Y + (KAGE_UP_Y - KAGE_NEUTRAL_Y) * sin(game_state->n_frames/(i % 4 + 40.0f) + 4*i);
             }
         }
 
