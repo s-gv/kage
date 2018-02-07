@@ -441,6 +441,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
             game_state->play_state = PLAY_STATE_PAUSE;
+            alSuspend();
         }
     }
     else if(game_state->play_state == PLAY_STATE_PAUSE) {
@@ -452,6 +453,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
 
         if(game_input.event_type != GAME_INPUT_EVENT_NULL) {
             game_state->play_state = PLAY_STATE_PLAYING;
+            alResume();
         }
     }
     else if(game_state->play_state == PLAY_STATE_DYING) {
