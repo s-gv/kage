@@ -398,7 +398,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 if(target->type == ENTITY_TYPE_TARGET) {
                     int target_x = target->x - target_plane->offset_x;
                     int target_y = target->y - target_plane->offset_y;
-                    if(abs(crap_entity->x - target_x) < 20 && abs(crap_entity->y - target_y) < 200) {
+                    if(abs(crap_entity->x - target_x) < 30 && abs(crap_entity->y - target_y) < 300) {
                         target->sprite++;
                         game_state->target_counter++;
                         game_state->crap_state = CRAP_NONE;
