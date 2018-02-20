@@ -454,6 +454,10 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             }
         }
 
+        if(rand() % 1000 == 0) {
+            alPlay(game_state->al_crow_buffer, AL_PLAY_ONCE);
+        }
+
         if(game_input.event_type == GAME_INPUT_EVENT_PAUSE) {
             game_state->play_state = PLAY_STATE_PAUSE;
             alSuspend();
