@@ -426,7 +426,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(food->type == ENTITY_TYPE_FOOD || food->type == ENTITY_TYPE_FOOD_MOVING) {
                 int food_x = food->x - food_plane->offset_x;
                 int food_y = food->y - food_plane->offset_y;
-                if(abs(player_entity->x - food_x) < 50 && abs(player_entity->y - food_y) < 20) {
+                if(abs(player_entity->x - food_x) < 150 && abs(player_entity->y - food_y) < 20) {
                     game_state->food_counter++;
                     alPlay(game_state->al_crunch_buffer, AL_PLAY_ONCE);
                     food->type = ENTITY_TYPE_NULL;
@@ -443,7 +443,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(obstacle->type == ENTITY_TYPE_OBSTACLE || obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
-                if(abs(player_entity->x - obstacle_x) < 300 && abs(player_entity->y - obstacle_y) < 20) {
+                if(abs(player_entity->x - obstacle_x) < 350 && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
                     game_state->player_kf_idx = 0;
                 }
