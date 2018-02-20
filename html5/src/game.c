@@ -125,6 +125,26 @@ int LoadFood(int world_slice, Entity *entities, int n_entities)
         (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 - 200, KAGE_DOWN_Y, ENTITY_TYPE_FOOD_MOVING},
         (const Entity){&g_food_sprites[rand() % 4], world_slice*4000 + 1800, KAGE_NEUTRAL_Y, ENTITY_TYPE_FOOD}
     };
+    if(world_slice > 4) {
+        es[0] = (const Entity){
+            &g_food_sprites[rand() % 4],
+            world_slice*4000 - 1900 + (rand() % 200),
+            (rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y,
+            ENTITY_TYPE_FOOD
+        };
+        es[1] = (const Entity){
+            &g_food_sprites[rand() % 4],
+            world_slice*4000 - 400 + (rand() % 400),
+            (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
+            (rand() % 6) == 0 ? ENTITY_TYPE_FOOD_MOVING : ENTITY_TYPE_FOOD
+        };
+        es[2] = (const Entity){
+            &g_food_sprites[rand() % 4],
+            world_slice*4000 + 1500 + (rand() % 200),
+            (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
+            (rand() % 6) == 0 ? ENTITY_TYPE_FOOD_MOVING : ENTITY_TYPE_FOOD
+        };
+    }
     for(int i = 0; i < 3; i++) {
         int res = AddEntity(es[i], entities, n_entities);
         if(res != 0) {
