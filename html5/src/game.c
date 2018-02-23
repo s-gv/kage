@@ -71,7 +71,7 @@ int LoadFarBg(int world_slice, Entity *entities, int n_entities)
 int LoadBg(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[3] = {
-        (const Entity){&g_cloud_sprites[rand() % 4], world_slice*4000, 600, ENTITY_TYPE_BG},
+        (const Entity){&g_cloud_sprites[rand() % 15], world_slice*4000, 600, ENTITY_TYPE_BG},
         (const Entity){&g_bush_sprites[rand() % 4], world_slice*4000 -1000, -400, ENTITY_TYPE_BG},
         (const Entity){&g_building_sprites[rand() % 8], world_slice*4000 + 1000, -400, ENTITY_TYPE_BG}
     };

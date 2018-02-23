@@ -26,14 +26,14 @@ typedef struct {
 
 extern Sprite g_start_splash_sprite;
 extern Sprite g_farbg_sprites[2];
-extern Sprite g_cloud_sprites[4];
+extern Sprite g_cloud_sprites[15];
 extern Sprite g_bush_sprites[4];
 extern Sprite g_building_sprites[8];
 extern Sprite g_kage_sprites[8];
 extern Sprite g_crap_sprites[3];
 extern Sprite g_target_sprites[2*N_ASSET_TARGETS];
 extern Sprite g_food_sprites[4];
-extern Sprite g_obstacle_sprites[1];
+extern Sprite g_obstacle_sprites[5];
 extern Sprite g_stop_splash_sprite;
 extern Sprite g_kage_dying_sprites[8];
 extern Sprite g_darken[1];
