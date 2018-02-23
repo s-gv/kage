@@ -103,7 +103,7 @@ int LoadTarget(int world_slice, Entity *entities, int n_entities)
 int LoadObstacle(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[1] = {
-        (const Entity){&g_obstacle_sprites[0], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
+        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
     };
     /*
     if(world_slice % 3 == 1) {
@@ -463,7 +463,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(obstacle->type == ENTITY_TYPE_OBSTACLE || obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
-                if(abs(player_entity->x - obstacle_x) < 350 && abs(player_entity->y - obstacle_y) < 20) {
+                int obstacle_w = (obstacle->sprite->w > 0.3f) ? 350 : 175;
+                if(abs(player_entity->x - obstacle_x) < obstacle_w && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
                     game_state->player_kf_idx = 0;
                 }
