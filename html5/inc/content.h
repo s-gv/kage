@@ -42,6 +42,7 @@ extern Sprite g_pause[1];
 extern Sprite g_nums[10];
 extern Sprite g_big_nums[10];
 extern Sprite g_roads[1];
+extern Sprite g_bonus[1];
 
 extern AnimSeq g_kage_anim;
 extern AnimSeq g_kage_dying_anim;

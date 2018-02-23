@@ -425,6 +425,8 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                         game_state->target_counter++;
                         game_state->crap_state = CRAP_NONE;
                         crap_entity->type = ENTITY_TYPE_NULL;
+                        Entity bonus_entity = (const Entity){&g_bonus[0], target->x + 50, target->y + 200, ENTITY_TYPE_BONUS};
+                        AddEntity(bonus_entity, food_plane->entities, MAX_ENTITIES_PER_PLANE);
                     }
                 }
             }
@@ -438,6 +440,14 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(crap_entity->x < -2000) {
                 game_state->crap_state = CRAP_NONE;
                 crap_entity->type = ENTITY_TYPE_NULL;
+            }
+        }
+
+        for(int i = 0; i < MAX_ENTITIES_PER_PLANE; i++) {
+            Entity *bonus_entity = &food_plane->entities[i];
+            if(bonus_entity->type == ENTITY_TYPE_BONUS) {
+                bonus_entity->x += 1;
+                bonus_entity->y += 1;
             }
         }
 
