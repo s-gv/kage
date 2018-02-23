@@ -102,14 +102,25 @@ int LoadTarget(int world_slice, Entity *entities, int n_entities)
 
 int LoadObstacle(int world_slice, Entity *entities, int n_entities)
 {
-    Entity es[1] = {
-        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1800, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE}
+    Entity es[2] = {
+        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE},
+        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_NULL}
     };
-    /*
-    if(world_slice % 3 == 1) {
-        es[0].type = ENTITY_TYPE_OBSTACLE_MOVING;
-    }*/
-    for(int i = 0; i < 1; i++) {
+    if(world_slice > 4) {
+        es[0] = (const Entity){
+            &g_obstacle_sprites[rand() % 5],
+            world_slice*4000 - 1100 + (rand() % 300),
+            (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
+            (rand() % 6) == 0 ? ENTITY_TYPE_OBSTACLE_MOVING : ENTITY_TYPE_OBSTACLE
+        };
+        es[1] = (const Entity){
+            &g_obstacle_sprites[rand() % 5],
+            world_slice*4000 + 900 + (rand() % 400),
+            (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
+            (rand() % 6) == 0 ? ENTITY_TYPE_OBSTACLE_MOVING : ENTITY_TYPE_OBSTACLE
+        };
+    }
+    for(int i = 0; i < 2; i++) {
         int res = AddEntity(es[i], entities, n_entities);
         if(res != 0) {
             return -1;
