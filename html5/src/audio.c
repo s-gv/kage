@@ -8,6 +8,8 @@
 #include "audio.h"
 #include "platform.h"
 
+#define MAX_SAMPLES (1 << 23)
+
 int wavBufferData(char* file_name) {
     int buffer_idx = 0;
     FILE* fp = platform_fopen(file_name, "rb");
@@ -15,8 +17,8 @@ int wavBufferData(char* file_name) {
         LOGE("Error opening audio file %s\n", file_name);
         return 0;
     }
-    unsigned char* data = malloc(1 << 23);
-    float* samples = malloc((1 << 21)*sizeof(float));
+    unsigned char* data = malloc(MAX_SAMPLES*4);
+    float* samples = malloc(MAX_SAMPLES*sizeof(float));
     if (data == NULL || samples == NULL) {
         LOGE("Insufficient memory to load audio\n");
         fclose(fp);
@@ -24,6 +26,7 @@ int wavBufferData(char* file_name) {
     }
     fread(data, 1, 1 << 23, fp);
     int n_samples = *((uint32_t*)(&data[40])) / 2;
+    n_samples = (n_samples < MAX_SAMPLES) ? n_samples : MAX_SAMPLES;
     int i;
     for(i = 0; i < n_samples; i++) {
         samples[i] = *((int16_t*)(&data[44+2*i])) / 32768.0f;
