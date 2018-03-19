@@ -484,7 +484,13 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
             if(obstacle->type == ENTITY_TYPE_OBSTACLE || obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
-                int obstacle_w = (obstacle->sprite->w > 0.45f) ? 475 : 185;
+                int obstacle_w = 185; //(obstacle->sprite->w > 0.45f) ? 475 : 185;
+                if(obstacle->sprite->w >= 0.5f) {
+                    obstacle_w = 375; // Drone
+                }
+                else if(obstacle->sprite->w >= 0.65f) {
+                    obstacle_w = 475; // Blimp
+                }
                 if(abs(player_entity->x - obstacle_x) < obstacle_w && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
                     game_state->player_kf_idx = 0;
