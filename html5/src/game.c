@@ -103,18 +103,18 @@ int LoadTarget(int world_slice, Entity *entities, int n_entities)
 int LoadObstacle(int world_slice, Entity *entities, int n_entities)
 {
     Entity es[2] = {
-        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE},
-        (const Entity){&g_obstacle_sprites[rand() % 5], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_NULL}
+        (const Entity){&g_obstacle_sprites[rand() % 6], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_OBSTACLE},
+        (const Entity){&g_obstacle_sprites[rand() % 6], world_slice*4000 - 1000, KAGE_UP_Y, ENTITY_TYPE_NULL}
     };
     if(world_slice > 6) {
         es[0] = (const Entity){
-            &g_obstacle_sprites[rand() % 5],
+            &g_obstacle_sprites[rand() % 6],
             world_slice*4000 - 1100 + (rand() % 300),
             (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
             (rand() % 6) == 0 ? ENTITY_TYPE_OBSTACLE_MOVING : ENTITY_TYPE_OBSTACLE
         };
         es[1] = (const Entity){
-            &g_obstacle_sprites[rand() % 5],
+            &g_obstacle_sprites[rand() % 6],
             world_slice*4000 + 900 + (rand() % 400),
             (rand() % 3) == 0 ? KAGE_UP_Y : ((rand() % 2) == 0 ? KAGE_DOWN_Y : KAGE_NEUTRAL_Y),
             (rand() % 6) == 0 ? ENTITY_TYPE_OBSTACLE_MOVING : ENTITY_TYPE_OBSTACLE
@@ -488,6 +488,7 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 if(abs(player_entity->x - obstacle_x) < obstacle_w && abs(player_entity->y - obstacle_y) < 20) {
                     game_state->play_state = PLAY_STATE_DYING;
                     game_state->player_kf_idx = 0;
+                    alPlay(game_state->al_crow_buffer, AL_PLAY_ONCE);
                 }
             }
             if(obstacle->type == ENTITY_TYPE_OBSTACLE_MOVING) {
