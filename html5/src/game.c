@@ -485,10 +485,10 @@ void GameStateUpdate(GameState* game_state, GameInput game_input)
                 int obstacle_x = obstacle->x - obstacle_plane->offset_x;
                 int obstacle_y = obstacle->y - obstacle_plane->offset_y;
                 int obstacle_w = 185; //(obstacle->sprite->w > 0.45f) ? 475 : 185;
-                if(obstacle->sprite->w >= 0.5f) {
+                if(obstacle->sprite->w > 0.5f) {
                     obstacle_w = 375; // Drone
                 }
-                else if(obstacle->sprite->w >= 0.65f) {
+                if(obstacle->sprite->w > 0.6f) {
                     obstacle_w = 475; // Blimp
                 }
                 if(abs(player_entity->x - obstacle_x) < obstacle_w && abs(player_entity->y - obstacle_y) < 20) {
